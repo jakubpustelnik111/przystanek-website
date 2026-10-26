@@ -1,5 +1,10 @@
-// Adres, na który przychodzą zgłoszenia rezerwacji (przez formsubmit.co).
-// Podmień na swój e-mail.
+// Zgłoszenia rezerwacji wysyła usługa EmailJS (emailjs.com) na Twój e-mail.
+// Uzupełnij trzy wartości z panelu EmailJS (instrukcja w README.md).
+// Public Key jest przeznaczony do jawnego użycia w kodzie strony.
+const EMAILJS_SERVICE_ID="TWOJ-SERVICE-ID";    // Email Services → Service ID (np. service_abc123)
+const EMAILJS_TEMPLATE_ID="TWOJ-TEMPLATE-ID";  // Email Templates → Template ID (np. template_abc123)
+const EMAILJS_PUBLIC_KEY="TWOJ-PUBLIC-KEY";    // Account → General → Public Key
+// Adres używany tylko do zapasowego linku "Wyślij z własnej poczty".
 const MAIL_DO_REZERWACJI="jakubpustelnik2006@gmail.com";
 const V=["start","rezerwacje","r4b4n"];
 function show(){let h=(location.hash||"#start").slice(1);if(!V.includes(h))h="start";
@@ -67,13 +72,14 @@ function list(){const l=document.getElementById("list");l.innerHTML="";
 document.getElementById("send").onclick=()=>{const g=id=>document.getElementById(id).value.trim(),msg=document.getElementById("msg");
  if(!sel){msg.textContent="Najpierw wybierz datę w kalendarzu.";return}
  if(!g("f-title")||!g("f-name")||!g("f-mail")){msg.textContent="Uzupełnij tytuł, imię i nazwisko oraz e-mail.";return}
- if(!MAIL_DO_REZERWACJI||MAIL_DO_REZERWACJI.includes("TWOJ-ADRES")){msg.textContent="Formularz nie ma jeszcze ustawionego adresu e-mail do zgłoszeń.";return}
+ if([EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,EMAILJS_PUBLIC_KEY].some(v=>!v||v.includes("TWOJ-"))){msg.textContent="Formularz nie ma jeszcze ustawionych danych EmailJS do wysyłania zgłoszeń.";return}
  const r={date:sel,title:g("f-title"),name:g("f-name"),mail:g("f-mail"),tel:g("f-tel"),note:g("f-note")};
  const btn=document.getElementById("send");btn.disabled=true;msg.textContent="Wysyłanie…";
  if(location.protocol==="file:"){msg.textContent="Wysyłka e-mail działa tylko na opublikowanej stronie (np. GitHub Pages), a nie z pliku otwartego z dysku.";btn.disabled=false;return}
- fetch("https://formsubmit.co/ajax/"+MAIL_DO_REZERWACJI,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
-  body:JSON.stringify({_subject:"Nowa rezerwacja: "+r.title+" ("+r.date+")",_template:"table",_replyto:r.mail,"Data":r.date,"Tytuł wydarzenia":r.title,"Imię i nazwisko":r.name,"E-mail":r.mail,"Telefon":r.tel||"-","Uwagi":r.note||"-"})})
- .then(x=>x.json()).then(x=>{if(x.success!=="true"&&x.success!==true)throw new Error(x.message||"fail");
+ fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({service_id:EMAILJS_SERVICE_ID,template_id:EMAILJS_TEMPLATE_ID,user_id:EMAILJS_PUBLIC_KEY,
+   template_params:{date:r.date,title:r.title,name:r.name,email:r.mail,phone:r.tel||"-",note:r.note||"-",subject:"Nowa rezerwacja: "+r.title+" ("+r.date+")"}})})
+ .then(async x=>{if(!x.ok)throw new Error((await x.text()).slice(0,120)||"fail");
   res.push(r);save();msg.textContent="Dziękujemy! Zgłoszenie na "+r.date+" zostało wysłane. Potwierdzimy termin mailowo.";sel=null;
   document.getElementById("chosen").textContent="Wybrana data: brak";["f-title","f-name","f-mail","f-tel","f-note"].forEach(i=>document.getElementById(i).value="");draw();list()})
  .catch(e=>{
