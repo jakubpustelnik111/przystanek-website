@@ -59,9 +59,9 @@ const iso=(a,b,c)=>a+"-"+String(b+1).padStart(2,"0")+"-"+String(c).padStart(2,"0
 async function loadBusy(){
  if(!DB_ON){busy=new Set(res.map(r=>r.date));draw();list();return}
  try{const x=await fetch(SUPABASE_URL+"/rest/v1/rpc/busy_dates",{method:"POST",headers:HDR,body:"{}"});
-  if(!x.ok)throw new Error("HTTP "+x.status);
+  if(!x.ok)throw new Error("HTTP "+x.status+" "+(await x.text()).slice(0,160));
   busy=new Set((await x.json()).map(r=>String(r.event_date).slice(0,10)))}
- catch(e){document.getElementById("msg").textContent="Nie udało się pobrać zajętych terminów. Odśwież stronę."}
+ catch(e){console.error("busy_dates:",e);document.getElementById("msg").textContent="Nie udało się pobrać zajętych terminów ("+e.message+"). Odśwież stronę."}
  await loadAdmin();draw();list()}
 function draw(){const cal=document.getElementById("cal");cal.innerHTML="";
  document.getElementById("mon").textContent=MN[m]+" "+y;
@@ -139,12 +139,12 @@ document.getElementById("send").onclick=async()=>{const g=id=>document.getElemen
    const x=await fetch(SUPABASE_URL+"/rest/v1/reservations",{method:"POST",headers:{...HDR,"Prefer":"return=minimal"},
     body:JSON.stringify({event_date:r.date,title:r.title,name:r.name,email:r.mail,phone:r.tel||null,note:r.note||null})});
    if(x.status===409){sel=null;document.getElementById("chosen").textContent="Wybrana data: brak";await loadBusy();msg.textContent="Ten termin został przed chwilą zajęty. Wybierz inną datę.";return}
-   if(!x.ok)throw new Error("HTTP "+x.status);
+   if(!x.ok)throw new Error("HTTP "+x.status+" "+(await x.text()).slice(0,160));
   }else{res.push(r);save()}
   busy.add(r.date);
   msg.textContent="Dziękujemy! Rezerwacja na "+r.date+" została zapisana.";sel=null;
   document.getElementById("chosen").textContent="Wybrana data: brak";["f-title","f-name","f-mail","f-tel","f-note"].forEach(i=>document.getElementById(i).value="");draw();list();
- }catch(e){msg.textContent="Nie udało się zapisać rezerwacji. Spróbuj ponownie za chwilę."}
+ }catch(e){console.error("reservation:",e);msg.textContent="Nie udało się zapisać rezerwacji ("+e.message+"). Spróbuj ponownie za chwilę."}
  finally{btn.disabled=false}};
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&DB_ON)loadBusy()});
 loadBusy();
