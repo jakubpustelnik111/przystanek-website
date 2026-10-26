@@ -1,10 +1,10 @@
 -- Wspólna baza rezerwacji dla strony Przystanek Duży Pokój (Supabase).
 -- Wklej całość w Supabase: SQL Editor -> New query -> Run.
 --
--- Jeśli wcześniej uruchomiłeś starszą wersję skryptu (z kolumnami name i phone),
--- uruchom jednorazowo tylko to, żeby usunąć niepotrzebne kolumny:
---   alter table public.reservations drop column if exists name;
---   alter table public.reservations drop column if exists phone;
+-- Jeśli wcześniej uruchomiłeś starszą wersję skryptu (z obowiązkowymi kolumnami name i phone),
+-- uruchom jednorazowo tylko to. Dzięki temu działa i stara, i nowa wersja formularza:
+--   alter table public.reservations alter column name  drop not null;
+--   alter table public.reservations alter column phone drop not null;
 
 create table if not exists public.reservations (
   id          bigint generated always as identity primary key,
