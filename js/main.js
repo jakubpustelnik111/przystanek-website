@@ -45,8 +45,8 @@ const EVENTS={"2026-11-14":"2Faces first edition"};
 // rezerwacje
 // Wspólna baza zajętych terminów (Supabase). Uzupełnij dwie wartości po założeniu projektu
 // (instrukcja w README.md, SQL w supabase-setup.sql). Bez nich rezerwacje zapisują się tylko lokalnie.
-const SUPABASE_URL="";  // np. https://abcdxyz.supabase.co
-const SUPABASE_KEY="";  // klucz publiczny (Publishable / anon key), przeznaczony do użycia w kodzie strony
+const SUPABASE_URL="https://pdexenoprsleniazvxic.supabase.co";
+const SUPABASE_KEY="sb_publishable_6B-_YhuJh7PJSIOEyr06Nw_CmaHKmQc";  // klucz publiczny, przeznaczony do użycia w kodzie strony
 const DB_ON=!!(SUPABASE_URL&&SUPABASE_KEY);
 const HDR={"apikey":SUPABASE_KEY,"Content-Type":"application/json"};
 if(SUPABASE_KEY.startsWith("eyJ"))HDR.Authorization="Bearer "+SUPABASE_KEY;
