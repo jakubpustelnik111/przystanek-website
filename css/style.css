@@ -129,3 +129,12 @@ img{max-width:100%}
  nav a{font-size:9.5px}
  .brand b{font-size:12px}
 }
+
+/* zdjęcia w galeriach: całe zdjęcie widoczne, tło to rozmyta kopia */
+.slide.photo{background:#111;overflow:hidden}
+.slide.photo img.bg{position:absolute;left:-30px;top:-30px;width:calc(100% + 60px);height:calc(100% + 60px);object-fit:cover;filter:blur(28px) brightness(.55)}
+.slide.photo img:not(.bg){position:relative;width:100%;height:100%;object-fit:contain}
+/* mniejsza galeria: zdjęcie jest skalowane (contain) do wysokości slajdu */
+.gal:not(.half) .slide{aspect-ratio:auto;height:clamp(240px,32vw,400px)}
+@media(max-width:600px){.gal:not(.half) .slide{height:min(78vw,320px)}}
+@media(min-width:761px){.evrow .gal{align-self:start}.gal.half .slide{height:clamp(260px,32vw,400px);min-height:0}}
