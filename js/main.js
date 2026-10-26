@@ -55,6 +55,8 @@ let res=[];try{res=JSON.parse(localStorage.getItem("pdp_res")||"[]")}catch(e){}
 function save(){try{localStorage.setItem("pdp_res",JSON.stringify(res))}catch(e){}}
 let busy=new Set(res.map(r=>r.date));
 let now=new Date(),y=now.getFullYear(),m=now.getMonth(),sel=null;
+sel=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
+document.getElementById("chosen").textContent="Wybrana data: "+now.getDate()+" "+MN[now.getMonth()].toLowerCase()+" "+now.getFullYear()+" (dziś)";
 const iso=(a,b,c)=>a+"-"+String(b+1).padStart(2,"0")+"-"+String(c).padStart(2,"0");
 async function loadBusy(){
  if(!DB_ON){busy=new Set(res.map(r=>r.date));draw();list();return}
@@ -70,7 +72,7 @@ function draw(){const cal=document.getElementById("cal");cal.innerHTML="";
  for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
  for(let d=1;d<=n;d++){const k=iso(y,m,d),b=document.createElement("button");b.textContent=d;
   const isBusy=busy.has(k);
-  if(k<today||isBusy)b.disabled=true;if(isBusy)b.classList.add("busy");if(k===sel)b.classList.add("sel");
+  if(k<today||isBusy)b.disabled=true;if(isBusy)b.classList.add("busy");if(k===today)b.classList.add("today");if(k===sel)b.classList.add("sel");
   b.onclick=()=>{sel=k;document.getElementById("chosen").textContent="Wybrana data: "+d+" "+MN[m].toLowerCase()+" "+y;draw()};cal.appendChild(b)}}
 document.getElementById("prev").onclick=()=>{m--;if(m<0){m=11;y--}draw()};
 document.getElementById("next").onclick=()=>{m++;if(m>11){m=0;y++}draw()};

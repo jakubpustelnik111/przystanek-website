@@ -137,3 +137,6 @@ img{max-width:100%}
 .gal:not(.half) .slide{aspect-ratio:auto;height:clamp(240px,32vw,400px)}
 @media(max-width:600px){.gal:not(.half) .slide{height:min(78vw,320px)}}
 @media(min-width:761px){.evrow .gal{align-self:start}.gal.half .slide{height:clamp(260px,32vw,400px);min-height:0}}
+
+.cal button.today{outline:2px solid var(--acc);outline-offset:-3px;font-weight:800}
+.cal button.today.sel{outline-color:var(--bg)}
