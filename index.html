@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Przystanek Duży Pokój</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Montserrat:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css"></head><body>
+<div class="wrap">
+<header>
+ <a class="brand" href="#start" style="text-decoration:none;color:inherit"><img src="img/logo.png" alt="Logo"><b>Przystanek<br>Duży Pokój</b></a>
+ <nav><a href="#start" data-v="start">Start ↗</a><a href="#rezerwacje" data-v="rezerwacje">Rezerwacje ↗</a><a href="#r4b4n" data-v="r4b4n">r4b4n ↗</a></nav>
+</header>
+
+<section class="view" id="v-start">
+ <div class="band"><div class="blob" style="width:360px;height:360px;right:-80px;top:-120px"></div>
+  <h1 class="big" style="position:relative">Przystanek<br>Duży Pokój</h1></div>
+ <div class="gal"><button class="arrow l" aria-label="Poprzednie">←</button><button class="arrow r" aria-label="Następne">→</button>
+  <div class="track" id="track">
+   <div class="slide">Zdjęcie 1</div><div class="slide">Zdjęcie 2</div><div class="slide">Zdjęcie 3</div><div class="slide">Zdjęcie 4</div>
+  </div><div class="dots" id="dots"></div></div>
+ <div class="grid2">
+  <div class="band"><h2 style="font-size:20px;margin-bottom:12px">O sali</h2><div class="edit">Tutaj wpisz krótki opis sali. Kilka zdań o klimacie, wielkości i charakterze miejsca.</div></div>
+  <div class="band"><div class="blob" style="width:260px;height:260px;left:-60px;bottom:-100px"></div><h2 style="font-size:20px;margin-bottom:12px;position:relative">Możliwości</h2><div class="edit" style="position:relative">Tutaj wpisz, co oferuje sala: koncerty, warsztaty, urodziny, spotkania, projekcje…</div></div>
+ </div>
+ <div class="band" style="text-align:center"><a class="btn" href="#rezerwacje" style="text-decoration:none;color:inherit;display:inline-block">Zarezerwuj termin ↗</a></div>
+</section>
+
+<section class="view" id="v-rezerwacje">
+ <div class="band"><h1 class="big">Rezerwacje</h1></div>
+ <div class="grid2">
+  <div class="band">
+   <div class="cal-h"><button id="prev">←</button><h3 id="mon" style="font-size:16px"></h3><button id="next">→</button></div>
+   <div class="cal" id="cal"></div>
+   <p style="font-size:12px">Pomarańczowe dni są już zajęte. Wybierz wolny termin.</p>
+  </div>
+  <div class="band"><div class="blob" style="width:300px;height:300px;right:-100px;top:-60px"></div>
+   <div style="position:relative">
+   <h2 style="font-size:18px">Dodaj rezerwację</h2>
+   <p id="chosen" style="font-weight:600">Wybrana data: brak</p>
+   <label>Tytuł wydarzenia</label><input id="f-title">
+   <label>Imię i nazwisko</label><input id="f-name">
+   <label>E-mail</label><input id="f-mail" type="email">
+   <label>Telefon</label><input id="f-tel" type="tel">
+   <label>Uwagi</label><textarea id="f-note" rows="3"></textarea>
+   <p><button class="btn" id="send">Zarezerwuj ↗</button></p><div class="msg" id="msg"></div></div>
+  </div>
+ </div>
+ <div class="band"><h2 style="font-size:16px">Zapisane rezerwacje</h2><div class="list" id="list"></div></div>
+</section>
+
+<section class="view" id="v-r4b4n">
+ <div class="band r4hero"><div class="blob" style="width:380px;height:380px;right:-100px;top:-100px"></div>
+  <div class="r4txt" style="position:relative"><h1 class="big">r4b4n</h1><p>kolektyw</p></div>
+  <img class="r4logo" src="img/r4b4n-logo.png" alt="Logo r4b4n"></div>
+ <div class="tag">Kalendarz i galeria</div>
+ <div class="grid2 evrow">
+  <div class="band">
+   <div class="cal-h"><button id="eprev" aria-label="Poprzedni miesiąc">←</button><h3 id="emon" style="font-size:16px"></h3><button id="enext" aria-label="Następny miesiąc">→</button></div>
+   <div class="cal" id="ecal"></div>
+   <p class="einfo" id="einfo"></p>
+  </div>
+  <div class="gal half"><button class="arrow l" aria-label="Poprzednie">←</button><button class="arrow r" aria-label="Następne">→</button>
+   <div class="track"><div class="slide">r4b4n 1</div><div class="slide">r4b4n 2</div><div class="slide">r4b4n 3</div><div class="slide">r4b4n 4</div></div>
+   <div class="dots"></div></div>
+ </div>
+ <div class="grid2">
+  <div class="band"><h2 style="font-size:20px;margin-bottom:12px">O nas</h2><div class="edit">Tutaj wpisz opis kolektywu r4b4n: kim jesteście, co robicie, od kiedy.</div></div>
+  <div class="band"><svg class="star" viewBox="0 0 100 100"><path d="M50 0 C54 34 66 46 100 50 C66 54 54 66 50 100 C46 66 34 54 0 50 C34 46 46 34 50 0Z" fill="currentColor"/></svg></div>
+ </div>
+ <div class="tag">Wydarzenia i projekty</div>
+ <div class="grid2"><div class="band"><div class="edit">Projekt 1 – opis.</div></div><div class="band"><div class="edit">Projekt 2 – opis.</div></div></div>
+ <div class="tag">Kontakt</div>
+ <div class="band"><div class="edit" style="min-height:60px">Tutaj wpisz dane kontaktowe i linki do social mediów.</div></div>
+</section>
+<footer><span class="d" style="font-size:12px">Przystanek Duży Pokój</span><span>© 2026</span></footer>
+</div>
+<script src="js/main.js"></script></body></html>
