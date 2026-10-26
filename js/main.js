@@ -16,32 +16,40 @@ function initGallery(root){
  dots.children[0].classList.add("on");
 }
 document.querySelectorAll(".gal").forEach(initGallery);
-// kalendarz wydarzeń r4b4n (tylko podgląd, bez rezerwacji)
-// Dodawaj kolejne wydarzenia w formacie "RRRR-MM-DD":"Nazwa"
+// kalendarz wydarzeń r4b4n: daty zapisane w bazie (tabela r4b4n_events), administrator dodaje i usuwa je pod kalendarzem
+// Zapasowa lista, używana gdy baza jest niedostępna: "RRRR-MM-DD":"Nazwa"
 const EVENTS={"2026-11-14":"2Faces first edition"};
-(function(){
- const MNE=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
- const pad=n=>String(n).padStart(2,"0"),today=new Date();
- const todayK=today.getFullYear()+"-"+pad(today.getMonth()+1)+"-"+pad(today.getDate());
- const keys=Object.keys(EVENTS).sort(),first=keys.find(k=>k>=todayK)||keys[0];
- let ey=first?+first.slice(0,4):today.getFullYear(),em=first?+first.slice(5,7)-1:today.getMonth(),picked=first||null;
- const fmt=k=>+k.slice(8)+"."+k.slice(5,7)+"."+k.slice(0,4);
- function drawE(){
-  const cal=document.getElementById("ecal");cal.innerHTML="";
-  document.getElementById("emon").textContent=MNE[em]+" "+ey;
-  ["Pn","Wt","Śr","Cz","Pt","So","Nd"].forEach(d=>{const e=document.createElement("div");e.className="dn";e.textContent=d;cal.appendChild(e)});
-  const off=(new Date(ey,em,1).getDay()+6)%7,n=new Date(ey,em+1,0).getDate();
-  for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
-  for(let d=1;d<=n;d++){const k=ey+"-"+pad(em+1)+"-"+pad(d);
-   if(EVENTS[k]){const b=document.createElement("button");b.textContent=d;b.className="ev"+(k===picked?" sel":"");b.title=EVENTS[k];
-    b.onclick=()=>{picked=k;drawE()};cal.appendChild(b)}
-   else{const c=document.createElement("div");c.textContent=d;c.className="plain";cal.appendChild(c)}}
-  document.getElementById("einfo").textContent=picked?fmt(picked)+" · "+EVENTS[picked]:"Brak zaplanowanych wydarzeń.";
- }
- document.getElementById("eprev").onclick=()=>{em--;if(em<0){em=11;ey--}drawE()};
- document.getElementById("enext").onclick=()=>{em++;if(em>11){em=0;ey++}drawE()};
- drawE();
-})();
+let EV={...EVENTS},EVID={};
+const MNE=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
+const pad=n=>String(n).padStart(2,"0"),today=new Date();
+const todayK=today.getFullYear()+"-"+pad(today.getMonth()+1)+"-"+pad(today.getDate());
+let ey=today.getFullYear(),em=today.getMonth(),picked=null;
+const fmt=k=>+k.slice(8)+"."+k.slice(5,7)+"."+k.slice(0,4);
+function pickFirst(){const keys=Object.keys(EV).sort(),f=keys.find(k=>k>=todayK)||keys[keys.length-1]||null;
+ picked=f;if(f){ey=+f.slice(0,4);em=+f.slice(5,7)-1}else{ey=today.getFullYear();em=today.getMonth()}}
+function drawE(){
+ const cal=document.getElementById("ecal");cal.innerHTML="";
+ document.getElementById("emon").textContent=MNE[em]+" "+ey;
+ ["Pn","Wt","Śr","Cz","Pt","So","Nd"].forEach(d=>{const e=document.createElement("div");e.className="dn";e.textContent=d;cal.appendChild(e)});
+ const off=(new Date(ey,em,1).getDay()+6)%7,n=new Date(ey,em+1,0).getDate();
+ for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
+ for(let d=1;d<=n;d++){const k=ey+"-"+pad(em+1)+"-"+pad(d);
+  if(EV[k]){const b=document.createElement("button");b.textContent=d;b.className="ev"+(k===picked?" sel":"");b.title=EV[k];
+   b.onclick=()=>{picked=k;drawE()};cal.appendChild(b)}
+  else{const c=document.createElement("div");c.textContent=d;c.className="plain";cal.appendChild(c)}}
+ document.getElementById("einfo").textContent=picked&&EV[picked]?fmt(picked)+" · "+EV[picked]:"Brak zaplanowanych wydarzeń.";
+ let isAdm=false;try{isAdm=!!adminTok&&DB_ON}catch(e){}
+ document.getElementById("eadm").hidden=!isAdm;
+ document.getElementById("edel").hidden=!(isAdm&&picked&&EVID[picked]);
+}
+document.getElementById("eprev").onclick=()=>{em--;if(em<0){em=11;ey--}drawE()};
+document.getElementById("enext").onclick=()=>{em++;if(em>11){em=0;ey++}drawE()};
+async function loadEvents(keep){
+ if(DB_ON){try{const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events?select=id,event_date,title&order=event_date.asc",{headers:HDR});
+  if(x.ok){const rows=await x.json();EV={};EVID={};rows.forEach(r=>{const k=String(r.event_date).slice(0,10);EV[k]=r.title;EVID[k]=r.id})}}catch(e){console.error("r4b4n_events:",e)}}
+ if(!keep||!EV[picked])pickFirst();
+ drawE()}
+pickFirst();drawE();
 // rezerwacje
 // Wspólna baza zajętych terminów (Supabase). Uzupełnij dwie wartości po założeniu projektu
 // (instrukcja w README.md, SQL w supabase-setup.sql). Bez nich rezerwacje zapisują się tylko lokalnie.
@@ -80,7 +88,7 @@ document.getElementById("next").onclick=()=>{m++;if(m>11){m=0;y++}draw()};
 let adminTok=null;try{adminTok=sessionStorage.getItem("pdp_adm")}catch(e){}
 let adminRows=null;
 const AH=()=>({"apikey":SUPABASE_KEY,"Content-Type":"application/json","Authorization":"Bearer "+adminTok});
-function logoutAdmin(){adminTok=null;adminRows=null;try{sessionStorage.removeItem("pdp_adm")}catch(e){}list()}
+function logoutAdmin(){adminTok=null;adminRows=null;try{sessionStorage.removeItem("pdp_adm")}catch(e){}list();drawE()}
 async function loadAdmin(){
  if(!DB_ON||!adminTok){adminRows=null;return}
  try{const x=await fetch(SUPABASE_URL+"/rest/v1/reservations?select=id,event_date,title,email,note&order=event_date.asc",{headers:AH()});
@@ -127,7 +135,7 @@ document.getElementById("adm-login").onclick=async()=>{
   if(!x.ok)throw new Error("login");
   adminTok=(await x.json()).access_token;try{sessionStorage.setItem("pdp_adm",adminTok)}catch(e){}
   document.getElementById("adm-pass").value="";msg.textContent="";
-  await loadAdmin();list()}
+  await loadAdmin();list();drawE()}
  catch(e){msg.textContent="Nie udało się zalogować. Sprawdź e-mail i hasło."}
  finally{btn.disabled=false}};
 document.getElementById("send").onclick=async()=>{const g=id=>document.getElementById(id).value.trim(),msg=document.getElementById("msg");
@@ -150,3 +158,22 @@ document.getElementById("send").onclick=async()=>{const g=id=>document.getElemen
  finally{btn.disabled=false}};
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&DB_ON)loadBusy()});
 loadBusy();
+// r4b4n: dodawanie i usuwanie wydarzeń przez administratora
+document.getElementById("eadd").onclick=async()=>{
+ const d=document.getElementById("edate").value,t=document.getElementById("etitle").value.trim(),m=document.getElementById("emsg");
+ if(!d||!t){m.textContent="Podaj datę i nazwę wydarzenia.";return}
+ try{const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events",{method:"POST",headers:{...AH(),"Prefer":"return=minimal"},body:JSON.stringify({event_date:d,title:t})});
+  if(x.status===401||x.status===403){logoutAdmin();m.textContent="Sesja wygasła. Zaloguj się ponownie w Rezerwacjach.";drawE();return}
+  if(x.status===409){m.textContent="Na ten dzień jest już wydarzenie.";return}
+  if(!x.ok)throw new Error("HTTP "+x.status);
+  m.textContent="Dodano.";document.getElementById("etitle").value="";picked=d;ey=+d.slice(0,4);em=+d.slice(5,7)-1;await loadEvents(true)}
+ catch(e){m.textContent="Nie udało się dodać wydarzenia ("+e.message+")."}};
+document.getElementById("edel").onclick=async()=>{
+ const m=document.getElementById("emsg");if(!picked||!EVID[picked])return;
+ if(!confirm("Usunąć wydarzenie "+fmt(picked)+" ("+EV[picked]+")?"))return;
+ try{const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events?id=eq."+EVID[picked],{method:"DELETE",headers:{...AH(),"Prefer":"return=minimal"}});
+  if(x.status===401||x.status===403){logoutAdmin();drawE();return}
+  if(!x.ok)throw new Error("HTTP "+x.status);
+  m.textContent="Usunięto.";await loadEvents(false)}
+ catch(e){m.textContent="Nie udało się usunąć ("+e.message+")."}};
+loadEvents();
