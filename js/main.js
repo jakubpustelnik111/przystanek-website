@@ -70,10 +70,15 @@ document.getElementById("send").onclick=()=>{const g=id=>document.getElementById
  if(!MAIL_DO_REZERWACJI||MAIL_DO_REZERWACJI.includes("TWOJ-ADRES")){msg.textContent="Formularz nie ma jeszcze ustawionego adresu e-mail do zgłoszeń.";return}
  const r={date:sel,title:g("f-title"),name:g("f-name"),mail:g("f-mail"),tel:g("f-tel"),note:g("f-note")};
  const btn=document.getElementById("send");btn.disabled=true;msg.textContent="Wysyłanie…";
- fetch("https://formsubmit.co/ajax/"+encodeURIComponent(MAIL_DO_REZERWACJI),{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
+ if(location.protocol==="file:"){msg.textContent="Wysyłka e-mail działa tylko na opublikowanej stronie (np. GitHub Pages), a nie z pliku otwartego z dysku.";btn.disabled=false;return}
+ fetch("https://formsubmit.co/ajax/"+MAIL_DO_REZERWACJI,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},
   body:JSON.stringify({_subject:"Nowa rezerwacja: "+r.title+" ("+r.date+")",_template:"table",_replyto:r.mail,"Data":r.date,"Tytuł wydarzenia":r.title,"Imię i nazwisko":r.name,"E-mail":r.mail,"Telefon":r.tel||"-","Uwagi":r.note||"-"})})
- .then(x=>x.json()).then(x=>{if(x.success!=="true"&&x.success!==true)throw new Error("fail");
+ .then(x=>x.json()).then(x=>{if(x.success!=="true"&&x.success!==true)throw new Error(x.message||"fail");
   res.push(r);save();msg.textContent="Dziękujemy! Zgłoszenie na "+r.date+" zostało wysłane. Potwierdzimy termin mailowo.";sel=null;
   document.getElementById("chosen").textContent="Wybrana data: brak";["f-title","f-name","f-mail","f-tel","f-note"].forEach(i=>document.getElementById(i).value="");draw();list()})
- .catch(()=>{msg.textContent="Nie udało się wysłać zgłoszenia. Spróbuj ponownie za chwilę."}).finally(()=>{btn.disabled=false})};
+ .catch(e=>{
+  const sub="Rezerwacja: "+r.title+" ("+r.date+")",body="Data: "+r.date+"\nTytuł: "+r.title+"\nImię i nazwisko: "+r.name+"\nE-mail: "+r.mail+"\nTelefon: "+(r.tel||"-")+"\nUwagi: "+(r.note||"-");
+  msg.textContent="Nie udało się wysłać zgłoszenia"+(e&&e.message&&e.message!=="fail"&&e.message!=="Failed to fetch"?" ("+e.message+")":"")+". ";
+  const a=document.createElement("a");a.href="mailto:"+MAIL_DO_REZERWACJI+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);a.textContent="Wyślij zgłoszenie z własnej poczty";a.style.textDecoration="underline";msg.appendChild(a)})
+ .finally(()=>{btn.disabled=false})};
 draw();list();
