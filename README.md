@@ -66,5 +66,6 @@ Uwaga: każdy odwiedzający może zająć dowolny wolny termin, więc zdarzają 
 
 ## Do uzupełnienia
 
+- Kontakt na stronie Start (e-mail, telefon, adres) oraz linki social w zakładce r4b4n: w `index.html` zamień `href="#r4b4n"` w przyciskach `.social` na właściwe adresy (SoundCloud, Instagram, Facebook, YouTube, Mixcloud); zbędne przyciski usuń.
 - Teksty w sekcjach „O sali", „Możliwości" oraz w zakładce r4b4n.
 - Kolejne wydarzenia w kalendarzu r4b4n: stała `EVENTS` w `js/main.js`.

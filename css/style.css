@@ -140,3 +140,11 @@ img{max-width:100%}
 
 .cal button.today{outline:2px solid var(--acc);outline-offset:-3px;font-weight:800}
 .cal button.today.sel{outline-color:var(--bg)}
+
+/* kontakt i social media */
+.contact{margin:0}.contact dt{font:800 11px Unbounded,sans-serif;margin-top:14px;text-transform:uppercase;opacity:.7}.contact dt:first-child{margin-top:0}
+.contact dd{margin:4px 0 0;min-height:0}
+.social{display:flex;flex-wrap:wrap;gap:10px}
+.social .btn{text-decoration:none;display:inline-block;color:inherit}
+#v-r4b4n .social .btn:hover{background:#a6e34a;color:#111}
+@media(max-width:600px){.social .btn{flex:1 1 calc(50% - 10px);text-align:center}}
