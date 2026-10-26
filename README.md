@@ -54,7 +54,7 @@ Public Key jest przeznaczony do jawnego użycia w kodzie strony. Darmowy plan Em
 Dzięki niej zajęte terminy widzą wszyscy odwiedzający, a Ty możesz usuwać rezerwacje. Bez tej konfiguracji strona działa, ale rezerwacje zapisują się tylko w przeglądarce danej osoby.
 
 1. Załóż darmowe konto i projekt na https://supabase.com (**New project**, region np. Frankfurt).
-2. **SQL Editor → New query**: wklej całą zawartość pliku `supabase-setup.sql` i kliknij **Run**. Skrypt tworzy tabelę `reservations` oraz zabezpieczenia: odwiedzający mogą tylko dodać rezerwację i zobaczyć zajęte daty, bez imion, maili i telefonów.
+2. **SQL Editor → New query**: wklej całą zawartość pliku `supabase-setup.sql` i kliknij **Run**. Skrypt tworzy tabelę `reservations` oraz zabezpieczenia: odwiedzający mogą tylko dodać rezerwację i zobaczyć zajęte daty, bez maili i uwag.
 3. **Authentication → Users → Add user → Create new user**: podaj swój e-mail (ten sam co w `supabase-setup.sql`) i hasło, zaznacz auto-potwierdzenie. To Twoje konto administratora na stronie.
 4. **Authentication → Sign In / Providers**: wyłącz **Allow new users to sign up**, żeby nikt inny nie mógł założyć konta.
 5. **Project Settings → API**: skopiuj **Project URL** oraz klucz **Publishable** (lub **anon**).

@@ -81,7 +81,7 @@ const AH=()=>({"apikey":SUPABASE_KEY,"Content-Type":"application/json","Authoriz
 function logoutAdmin(){adminTok=null;adminRows=null;try{sessionStorage.removeItem("pdp_adm")}catch(e){}list()}
 async function loadAdmin(){
  if(!DB_ON||!adminTok){adminRows=null;return}
- try{const x=await fetch(SUPABASE_URL+"/rest/v1/reservations?select=id,event_date,title,name,email,phone,note&order=event_date.asc",{headers:AH()});
+ try{const x=await fetch(SUPABASE_URL+"/rest/v1/reservations?select=id,event_date,title,email,note&order=event_date.asc",{headers:AH()});
   if(x.status===401||x.status===403){logoutAdmin();return}
   if(!x.ok)throw new Error("HTTP "+x.status);
   adminRows=await x.json()}
@@ -108,7 +108,7 @@ function list(){const l=document.getElementById("list");l.innerHTML="";
   [...rows].sort((a,b)=>a.event_date<b.event_date?-1:1).forEach(r=>{
    const d=document.createElement("div");d.style.cssText="display:flex;justify-content:space-between;gap:12px;align-items:flex-start";
    const t=document.createElement("span");
-   t.textContent=fmtD(r.event_date)+" · "+r.title+" · "+r.name+(adm?" · "+r.email+(r.phone&&r.phone!=="-"?" · "+r.phone:"")+(r.note&&r.note!=="-"?" · "+r.note:""):"");
+   t.textContent=fmtD(r.event_date)+" · "+r.title+(adm?" · "+r.email+(r.note&&r.note!=="-"?" · "+r.note:""):"");
    const b=document.createElement("button");b.className="btn";b.textContent="Usuń";b.style.padding="6px 10px";b.onclick=()=>removeRes(adm?r:r._loc);
    d.appendChild(t);d.appendChild(b);l.appendChild(d)});return}
  const ds=[...busy].filter(k=>k>=today).sort();
@@ -130,20 +130,20 @@ document.getElementById("adm-login").onclick=async()=>{
  finally{btn.disabled=false}};
 document.getElementById("send").onclick=async()=>{const g=id=>document.getElementById(id).value.trim(),msg=document.getElementById("msg");
  if(!sel){msg.textContent="Najpierw wybierz datę w kalendarzu.";return}
- if(!g("f-title")||!g("f-name")||!g("f-mail")){msg.textContent="Uzupełnij tytuł, imię i nazwisko oraz e-mail.";return}
- const r={date:sel,title:g("f-title"),name:g("f-name"),mail:g("f-mail"),tel:g("f-tel"),note:g("f-note")};
+ if(!g("f-title")||!g("f-mail")){msg.textContent="Uzupełnij tytuł wydarzenia i e-mail.";return}
+ const r={date:sel,title:g("f-title"),mail:g("f-mail"),note:g("f-note")};
  const btn=document.getElementById("send");btn.disabled=true;
  try{
   if(DB_ON){
    msg.textContent="Zapisywanie…";
    const x=await fetch(SUPABASE_URL+"/rest/v1/reservations",{method:"POST",headers:{...HDR,"Prefer":"return=minimal"},
-    body:JSON.stringify({event_date:r.date,title:r.title,name:r.name,email:r.mail,phone:r.tel||null,note:r.note||null})});
+    body:JSON.stringify({event_date:r.date,title:r.title,email:r.mail,note:r.note||null})});
    if(x.status===409){sel=null;document.getElementById("chosen").textContent="Wybrana data: brak";await loadBusy();msg.textContent="Ten termin został przed chwilą zajęty. Wybierz inną datę.";return}
    if(!x.ok)throw new Error("HTTP "+x.status+" "+(await x.text()).slice(0,160));
   }else{res.push(r);save()}
   busy.add(r.date);
   msg.textContent="Dziękujemy! Rezerwacja na "+r.date+" została zapisana.";sel=null;
-  document.getElementById("chosen").textContent="Wybrana data: brak";["f-title","f-name","f-mail","f-tel","f-note"].forEach(i=>document.getElementById(i).value="");draw();list();
+  document.getElementById("chosen").textContent="Wybrana data: brak";["f-title","f-mail","f-note"].forEach(i=>document.getElementById(i).value="");draw();list();
  }catch(e){console.error("reservation:",e);msg.textContent="Nie udało się zapisać rezerwacji ("+e.message+"). Spróbuj ponownie za chwilę."}
  finally{btn.disabled=false}};
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&DB_ON)loadBusy()});
