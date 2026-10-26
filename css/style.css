@@ -70,10 +70,10 @@ body.g .btn:hover{background:#a6e34a;color:#111}
 .r4hero .big{font-size:clamp(24px,4.5vw,42px)}
 .r4hero p{margin:4px 0 0}
 .r4hero .blob{max-width:240px;max-height:240px}
-.r4logo{position:relative;height:clamp(90px,13vw,130px);width:auto}
+.r4logo{position:relative;height:clamp(150px,20vw,220px);width:auto}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .r4logo{filter:invert(1)}}
 :root[data-theme="dark"] .r4logo{filter:invert(1)}
-@media(max-width:600px){.r4hero{gap:8px;padding-top:8px;padding-bottom:8px}.r4hero .big{font-size:clamp(22px,8vw,32px)}.r4logo{height:clamp(80px,26vw,100px)}}
+@media(max-width:600px){.r4hero{gap:8px;padding-top:8px;padding-bottom:8px}.r4hero .big{font-size:clamp(22px,8vw,32px)}.r4logo{height:clamp(130px,42vw,170px)}}
 /* kalendarz wydarzeń + galeria obok siebie w r4b4n */
 .evrow .gal{border-bottom:0;display:flex;flex-direction:column;justify-content:center;min-height:100%}
 .gal.half .slide{aspect-ratio:auto;height:100%;min-height:300px}
