@@ -1,11 +1,5 @@
-// Zgłoszenia rezerwacji wysyła usługa EmailJS (emailjs.com) na Twój e-mail.
-// Uzupełnij trzy wartości z panelu EmailJS (instrukcja w README.md).
-// Public Key jest przeznaczony do jawnego użycia w kodzie strony.
-const EMAILJS_SERVICE_ID="service_eps05b4";    // Email Services → Service ID
-const EMAILJS_TEMPLATE_ID="template_0ctif7a";  // Email Templates → Template ID
-const EMAILJS_PUBLIC_KEY="dQ49Nuh02xl2ElqT1";  // Account → General → Public Key
-// Adres używany tylko do zapasowego linku "Wyślij z własnej poczty".
-const MAIL_DO_REZERWACJI="jakubpustelnik2006@gmail.com";
+// Wysyłka rezerwacji na e-mail jest na razie wyłączona (do dopracowania).
+// Rezerwacje zapisują się tylko w przeglądarce użytkownika (localStorage).
 const V=["start","rezerwacje","r4b4n"];
 function show(){let h=(location.hash||"#start").slice(1);if(!V.includes(h))h="start";
  V.forEach(v=>{document.getElementById("v-"+v).classList.toggle("on",v===h)});
@@ -72,19 +66,7 @@ function list(){const l=document.getElementById("list");l.innerHTML="";
 document.getElementById("send").onclick=()=>{const g=id=>document.getElementById(id).value.trim(),msg=document.getElementById("msg");
  if(!sel){msg.textContent="Najpierw wybierz datę w kalendarzu.";return}
  if(!g("f-title")||!g("f-name")||!g("f-mail")){msg.textContent="Uzupełnij tytuł, imię i nazwisko oraz e-mail.";return}
- if([EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,EMAILJS_PUBLIC_KEY].some(v=>!v||v.includes("TWOJ-"))){msg.textContent="Formularz nie ma jeszcze ustawionych danych EmailJS do wysyłania zgłoszeń.";return}
- const r={date:sel,title:g("f-title"),name:g("f-name"),mail:g("f-mail"),tel:g("f-tel"),note:g("f-note")};
- const btn=document.getElementById("send");btn.disabled=true;msg.textContent="Wysyłanie…";
- if(location.protocol==="file:"){msg.textContent="Wysyłka e-mail działa tylko na opublikowanej stronie (np. GitHub Pages), a nie z pliku otwartego z dysku.";btn.disabled=false;return}
- fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({service_id:EMAILJS_SERVICE_ID,template_id:EMAILJS_TEMPLATE_ID,user_id:EMAILJS_PUBLIC_KEY,
-   template_params:{date:r.date,title:r.title,name:r.name,email:r.mail,phone:r.tel||"-",note:r.note||"-",subject:"Nowa rezerwacja: "+r.title+" ("+r.date+")"}})})
- .then(async x=>{if(!x.ok)throw new Error((await x.text()).slice(0,120)||"fail");
-  res.push(r);save();msg.textContent="Dziękujemy! Zgłoszenie na "+r.date+" zostało wysłane. Potwierdzimy termin mailowo.";sel=null;
-  document.getElementById("chosen").textContent="Wybrana data: brak";["f-title","f-name","f-mail","f-tel","f-note"].forEach(i=>document.getElementById(i).value="");draw();list()})
- .catch(e=>{
-  const sub="Rezerwacja: "+r.title+" ("+r.date+")",body="Data: "+r.date+"\nTytuł: "+r.title+"\nImię i nazwisko: "+r.name+"\nE-mail: "+r.mail+"\nTelefon: "+(r.tel||"-")+"\nUwagi: "+(r.note||"-");
-  msg.textContent="Nie udało się wysłać zgłoszenia"+(e&&e.message&&e.message!=="fail"&&e.message!=="Failed to fetch"?" ("+e.message+")":"")+". ";
-  const a=document.createElement("a");a.href="mailto:"+MAIL_DO_REZERWACJI+"?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);a.textContent="Wyślij zgłoszenie z własnej poczty";a.style.textDecoration="underline";msg.appendChild(a)})
- .finally(()=>{btn.disabled=false})};
+ res.push({date:sel,title:g("f-title"),name:g("f-name"),mail:g("f-mail"),tel:g("f-tel"),note:g("f-note")});save();
+ msg.textContent="Dziękujemy! Rezerwacja na "+sel+" została zapisana.";sel=null;
+ document.getElementById("chosen").textContent="Wybrana data: brak";["f-title","f-name","f-mail","f-tel","f-note"].forEach(i=>document.getElementById(i).value="");draw();list()};
 draw();list();

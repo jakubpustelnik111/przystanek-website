@@ -7,7 +7,7 @@ Strona internetowa sali Przystanek Duży Pokój: strona główna z galerią, rez
 ```
 index.html        strona (trzy zakładki: Start, Rezerwacje, r4b4n)
 css/style.css     style
-js/main.js        galerie, kalendarze, formularz rezerwacji, EmailJS
+js/main.js        galerie, kalendarze, formularz rezerwacji
 img/              logo, zdjęcia (start/ i r4b4n/)
 ```
 
@@ -19,9 +19,12 @@ Otwórz `index.html` w przeglądarce. Strona nie wymaga instalacji.
 
 Settings → Pages → Branch: `main`, folder `/ (root)`. Strona będzie pod adresem `https://TWOJ-LOGIN.github.io/NAZWA-REPO/`.
 
-## Wysyłanie rezerwacji na e-mail (EmailJS)
+## Wysyłanie rezerwacji na e-mail (na razie wyłączone)
 
-Formularz rezerwacji wysyła zgłoszenia przez EmailJS. Trzeba to ustawić jednorazowo:
+Wysyłka zgłoszeń na e-mail jest na razie usunięta z kodu, formularz zapisuje rezerwacje tylko w przeglądarce. Planowany sposób to EmailJS. Przygotowane w panelu EmailJS dane:
+Service ID `service_eps05b4`, Template ID `template_0ctif7a`, Public Key `dQ49Nuh02xl2ElqT1` (Public Key jest przeznaczony do jawnego użycia w kodzie strony).
+
+Instrukcja konfiguracji EmailJS, gdy wrócimy do tematu:
 
 1. Załóż darmowe konto na https://www.emailjs.com.
 2. **Email Services → Add New Service** → wybierz Gmail i połącz swoje konto. Skopiuj **Service ID**.
@@ -40,7 +43,7 @@ Formularz rezerwacji wysyła zgłoszenia przez EmailJS. Trzeba to ustawić jedno
      ```
    - zapisz i skopiuj **Template ID**.
 4. **Account → General** → skopiuj **Public Key**.
-5. W `js/main.js` podmień na początku pliku wartości `EMAILJS_SERVICE_ID`, `EMAILJS_TEMPLATE_ID` i `EMAILJS_PUBLIC_KEY`.
+5. W `js/main.js` dodaj wysyłkę do `https://api.emailjs.com/api/v1.0/email/send` z tymi trzema wartościami (kod do przywrócenia mogę dopisać na życzenie).
 6. (Zalecane) W EmailJS w **Account → Security** dodaj adres swojej strony do dozwolonych domen, żeby nikt inny nie mógł używać Twojego klucza.
 
 Public Key jest przeznaczony do jawnego użycia w kodzie strony. Darmowy plan EmailJS pozwala na 200 maili miesięcznie.
