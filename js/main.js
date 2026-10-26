@@ -1,9 +1,9 @@
 // Zgłoszenia rezerwacji wysyła usługa EmailJS (emailjs.com) na Twój e-mail.
 // Uzupełnij trzy wartości z panelu EmailJS (instrukcja w README.md).
 // Public Key jest przeznaczony do jawnego użycia w kodzie strony.
-const EMAILJS_SERVICE_ID="TWOJ-SERVICE-ID";    // Email Services → Service ID (np. service_abc123)
-const EMAILJS_TEMPLATE_ID="TWOJ-TEMPLATE-ID";  // Email Templates → Template ID (np. template_abc123)
-const EMAILJS_PUBLIC_KEY="TWOJ-PUBLIC-KEY";    // Account → General → Public Key
+const EMAILJS_SERVICE_ID="service_eps05b4";    // Email Services → Service ID
+const EMAILJS_TEMPLATE_ID="template_0ctif7a";  // Email Templates → Template ID
+const EMAILJS_PUBLIC_KEY="dQ49Nuh02xl2ElqT1";  // Account → General → Public Key
 // Adres używany tylko do zapasowego linku "Wyślij z własnej poczty".
 const MAIL_DO_REZERWACJI="jakubpustelnik2006@gmail.com";
 const V=["start","rezerwacje","r4b4n"];
