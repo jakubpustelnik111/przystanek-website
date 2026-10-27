@@ -148,3 +148,6 @@ img{max-width:100%}
 .social .btn{text-decoration:none;display:inline-block;color:inherit}
 #v-r4b4n .social .btn:hover{background:#a6e34a;color:#111}
 @media(max-width:600px){.social .btn{flex:1 1 calc(50% - 10px);text-align:center}}
+
+/* menu: zakładka r4b4n podświetla się na zielono także z innych podstron */
+nav a[data-v="r4b4n"]:hover,nav a[data-v="r4b4n"]:focus-visible{background:linear-gradient(90deg,#1fa35c,#a6e34a);color:#111}
