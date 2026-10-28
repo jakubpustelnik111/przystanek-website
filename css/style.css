@@ -202,3 +202,7 @@ label.chk input{width:18px;height:18px;flex:0 0 18px;margin:0;accent-color:var(-
 .list .row .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
 .list .row .acts .btn{margin:0}
 @media(max-width:600px){.list .row{flex-direction:column}.list .row .acts{justify-content:flex-start}}
+
+/* wydarzenia r4b4n w kalendarzu rezerwacji */
+.cal button.r4,.cal button.r4:disabled{background:#1fa35c;color:#fff;font-weight:800;opacity:1;cursor:not-allowed}
+.list>div.r4{border-left:6px solid #1fa35c}

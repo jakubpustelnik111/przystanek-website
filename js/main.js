@@ -48,7 +48,9 @@ async function loadEvents(keep){
  if(DB_ON){try{const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events?select=id,event_date,title&order=event_date.asc",{headers:HDR});
   if(x.ok){const rows=await x.json();EV={};EVID={};rows.forEach(r=>{const k=String(r.event_date).slice(0,10);EV[k]=r.title;EVID[k]=r.id})}}catch(e){console.error("r4b4n_events:",e)}}
  if(!keep||!EV[picked])pickFirst();
- drawE()}
+ drawE();
+ // wydarzenia r4b4n blokują też kalendarz rezerwacji
+ try{if(sel&&EV[sel]){sel=null;showSel()}draw();list()}catch(e){}}
 pickFirst();drawE();
 // rezerwacje
 // Odwiedzający wysyła PROŚBĘ o rezerwację: trafia ona do bazy jako "oczekuje" i e-mailem (EmailJS) na skrzynkę sali.
@@ -75,7 +77,7 @@ async function loadBusy(){
  try{const x=await fetch(SUPABASE_URL+"/rest/v1/rpc/busy_dates",{method:"POST",headers:HDR,body:"{}"});
   if(!x.ok)throw new Error("HTTP "+x.status+" "+(await x.text()).slice(0,160));
   busy=new Map((await x.json()).map(r=>[String(r.event_date).slice(0,10),r.public_desc||""]));
-  if(sel&&busy.has(sel)){sel=null}}
+  if(sel&&(busy.has(sel)||EV[sel])){sel=null}}
  catch(e){console.error("busy_dates:",e);$("msg").textContent="Nie udało się pobrać zajętych terminów ("+e.message+"). Odśwież stronę."}
  await loadAdmin();showSel();draw();list()}
 function draw(){const cal=$("cal");cal.innerHTML="";
@@ -84,8 +86,9 @@ function draw(){const cal=$("cal");cal.innerHTML="";
  const off=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate();
  for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
  for(let d=1;d<=n;d++){const k=iso(y,m,d),b=document.createElement("button");b.textContent=d;
-  const isBusy=busy.has(k);
-  if(k<todayKey||isBusy)b.disabled=true;if(isBusy){b.classList.add("busy");b.title=busy.get(k)||"Zajęty"}
+  const isBusy=busy.has(k),isR4=!isBusy&&!!EV[k];
+  if(k<todayKey||isBusy||isR4)b.disabled=true;if(isBusy){b.classList.add("busy");b.title=busy.get(k)||"Zajęty"}
+  if(isR4){b.classList.add("r4");b.title="r4b4n: "+EV[k]}
   if(k===todayKey)b.classList.add("today");if(k===sel)b.classList.add("sel");
   b.onclick=()=>{sel=k;showSel();draw()};cal.appendChild(b)}}
 $("prev").onclick=()=>{m--;if(m<0){m=11;y--}draw()};
@@ -139,11 +142,11 @@ function list(){const l=$("list");l.innerHTML="";
    if(r.status==="pending")a.append(mkBtn("Potwierdź",()=>confirmRes(r)));
    a.append(mkBtn("Opis",()=>editDesc(r)),mkBtn("Usuń",()=>removeRes(r)));
    d.append(t,a);l.appendChild(d)});return}
- const ds=[...busy.keys()].filter(k=>k>=todayKey).sort();
+ const ds=[...new Set([...busy.keys(),...Object.keys(EV)])].filter(k=>k>=todayKey).sort();
  if(!ds.length){l.textContent="Brak zajętych terminów.";return}
- ds.forEach(k=>{const d=document.createElement("div");const desc=busy.get(k);
+ ds.forEach(k=>{const d=document.createElement("div");const r4=!busy.has(k),desc=r4?"r4b4n: "+EV[k]:busy.get(k);
   const b=document.createElement("b");b.textContent=fmtD(k);d.append(b,document.createTextNode(" · "+(desc||"zajęty")));
-  if(desc)d.className="open";l.appendChild(d)})}
+  if(r4)d.className="r4";else if(desc)d.className="open";l.appendChild(d)})}
 $("admlink").onclick=e=>{e.preventDefault();const a=$("adm");a.dataset.open="1";a.hidden=false}
 $("admout").onclick=e=>{e.preventDefault();logoutAdmin()};
 $("adm-login").onclick=async()=>{
@@ -165,6 +168,7 @@ async function sendMail(p){
  if(!x.ok)throw new Error("EmailJS "+x.status+" "+(await x.text()).slice(0,120))}
 $("send").onclick=async()=>{const g=id=>$(id).value.trim(),msg=$("msg");
  if(!sel){msg.textContent="Najpierw wybierz datę w kalendarzu.";return}
+ if(EV[sel]||busy.has(sel)){msg.textContent="Ten termin jest zajęty. Wybierz inną datę.";sel=null;showSel();draw();return}
  const r={date:sel,title:g("f-title"),mail:g("f-mail"),phone:g("f-phone"),details:g("f-note"),open:$("f-open").checked,pub:g("f-pub")};
  if(!r.title||!r.mail||!r.phone){msg.textContent="Uzupełnij tytuł wydarzenia, e-mail i numer telefonu.";return}
  if(!/^\S+@\S+\.\S+$/.test(r.mail)){msg.textContent="Sprawdź adres e-mail.";return}
