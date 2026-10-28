@@ -185,3 +185,8 @@ header{position:relative}
 html.theme-anim,html.theme-anim *{transition:background-color .35s,color .35s,border-color .35s!important}
 @media(max-width:900px){.theme{padding:0 14px}}
 @media(max-width:600px){.theme{position:absolute;top:0;right:0;height:69px;min-height:0;border-left:1px solid var(--line);padding:0 16px}.theme span{display:none}.theme svg{width:22px;height:22px}}
+
+/* logo: w ciemnym motywie wersja z przezroczystym tłem */
+.brand .logo-d{display:none}
+:root[data-theme="dark"] .brand .logo-l{display:none}:root[data-theme="dark"] .brand .logo-d{display:block}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .brand .logo-l{display:none}:root:not([data-theme="light"]) .brand .logo-d{display:block}}
