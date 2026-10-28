@@ -59,7 +59,7 @@ const DB_ON=!!(SUPABASE_URL&&SUPABASE_KEY);
 const HDR={"apikey":SUPABASE_KEY,"Content-Type":"application/json"};
 if(SUPABASE_KEY.startsWith("eyJ"))HDR.Authorization="Bearer "+SUPABASE_KEY;
 // EmailJS: powiadomienie o nowej prośbie (szablon: To = skrzynka sali, Reply-To = {{email}}, Subject = {{subject}})
-const EMAILJS={service:"service_eps05b4",template:"template_0ctif7a",key:"dQ49Nuh02xl2ElqT1"};
+const EMAILJS={service:"service_o0s3pj2",template:"template_n1rdne8",key:"N_8Z4bL6aFTH875RU"};
 const MN=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
 const iso=(a,b,c)=>a+"-"+String(b+1).padStart(2,"0")+"-"+String(c).padStart(2,"0");
 const fmtD=k=>+String(k).slice(8,10)+"."+String(k).slice(5,7)+"."+String(k).slice(0,4);

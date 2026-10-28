@@ -56,7 +56,7 @@ Public Key jest przeznaczony do jawnego użycia w kodzie strony. Darmowy plan Em
 3. Administrator w panelu (Rezerwacje → Panel administratora) klika „Potwierdź” – dopiero wtedy data jest zajęta na stronie. „Opis” zmienia tekst widoczny obok daty (pusty = wydarzenie prywatne, widać tylko „zajęty”). „Usuń” kasuje prośbę lub termin.
 4. Wymagany skrypt bazy: `rezerwacje-v2.sql` (uruchomić raz w SQL Editorze).
 
-EmailJS (Email Templates → `template_0ctif7a`): To Email = skrzynka sali, Reply To = `{{reply_to}}`, Subject = `{{subject}}`, treść np.:
+EmailJS (konto skrzynki sali; service `service_o0s3pj2`, template `template_n1rdne8`, public key `N_8Z4bL6aFTH875RU`): To Email = skrzynka sali, Reply To = `{{reply_to}}`, Subject = `{{subject}}`, treść np.:
 ```
 Data: {{date}}
 Tytuł: {{title}}
