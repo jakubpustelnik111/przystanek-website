@@ -189,7 +189,7 @@ loadEvents();
  document.addEventListener("mouseleave",()=>{on=false;document.body.classList.remove("cur-on")});
  (function loop(){
   x+=(tx-x)*.12;y+=(ty-y)*.12;
-  blob.style.transform="translate("+(x-190)+"px,"+(y-190)+"px)";
+  blob.style.transform="translate("+(x-110)+"px,"+(y-110)+"px)";
   grid.style.setProperty("--mx",tx+"px");grid.style.setProperty("--my",ty+"px");
   requestAnimationFrame(loop)})();
 })();
