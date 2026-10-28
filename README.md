@@ -49,6 +49,25 @@ Instrukcja konfiguracji EmailJS, gdy wrócimy do tematu:
 
 Public Key jest przeznaczony do jawnego użycia w kodzie strony. Darmowy plan EmailJS pozwala na 200 maili miesięcznie.
 
+## Jak działają rezerwacje (v2)
+
+1. Odwiedzający wybiera datę, wpisuje tytuł, e-mail, telefon i szczegóły; może zaznaczyć „Wydarzenie otwarte” i dopisać opis publiczny.
+2. Po kliknięciu „Zarezerwuj” prośba zapisuje się w bazie ze statusem „oczekuje” i (przez EmailJS) trafia mailem na skrzynkę sali. Termin NIE jest jeszcze zajęty.
+3. Administrator w panelu (Rezerwacje → Panel administratora) klika „Potwierdź” – dopiero wtedy data jest zajęta na stronie. „Opis” zmienia tekst widoczny obok daty (pusty = wydarzenie prywatne, widać tylko „zajęty”). „Usuń” kasuje prośbę lub termin.
+4. Wymagany skrypt bazy: `rezerwacje-v2.sql` (uruchomić raz w SQL Editorze).
+
+EmailJS (Email Templates → `template_0ctif7a`): To Email = skrzynka sali, Reply To = `{{reply_to}}`, Subject = `{{subject}}`, treść np.:
+```
+Data: {{date}}
+Tytuł: {{title}}
+E-mail: {{email}}
+Telefon: {{phone}}
+Rodzaj: {{event_type}}
+Opis publiczny: {{public_desc}}
+Szczegóły: {{details}}
+```
+W Email Services warto podłączyć skrzynkę sali (Gmail), żeby maile wychodziły z niej.
+
 ## Wspólna baza rezerwacji (Supabase)
 
 Dzięki niej zajęte terminy widzą wszyscy odwiedzający, a Ty możesz usuwać rezerwacje. Bez tej konfiguracji strona działa, ale rezerwacje zapisują się tylko w przeglądarce danej osoby.

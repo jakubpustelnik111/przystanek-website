@@ -52,7 +52,7 @@ section.view{display:none}section.view.on{display:block}
 label{display:block;font:600 11px Montserrat;margin:12px 0 4px}
 input,textarea{width:100%;background:var(--card);color:var(--ink);border:1px solid var(--line);padding:10px;font:14px Montserrat,sans-serif;border-radius:0}
 .msg{margin-top:12px;font-weight:600}
-.list div{border:1px solid var(--line);padding:10px;margin-top:8px;background:var(--card)}
+.list>div{border:1px solid var(--line);padding:10px;margin-top:8px;background:var(--card)}
 footer{padding:22px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:12px;position:relative;z-index:1}
 .star{width:90px;height:90px;display:block;margin:auto}
 /* r4b4n: zielona wersja motywu */
@@ -88,7 +88,7 @@ body.g .btn:hover{background:#a6e34a;color:#111}
 /* ===== Responsywność (telefony i małe tablety) ===== */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 img{max-width:100%}
-.list div,.msg,.edit{overflow-wrap:anywhere}
+.list>div,.msg,.edit{overflow-wrap:anywhere}
 @media(max-width:900px){
  .band{padding:18px}
  nav a{padding:0 14px;font-size:13px}
@@ -188,3 +188,17 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s,color .35s,bo
 
 /* logo sali: zawsze wersja z przezroczystym tłem (img/logo-t.png) */
 .brand img.logo{mix-blend-mode:normal;filter:none}
+
+/* formularz prośby o rezerwację + lista terminów */
+.subj{font:600 12px Montserrat,sans-serif;margin:2px 0 4px;opacity:.75}
+label.chk{display:flex;align-items:flex-start;gap:10px;font:600 12px/1.4 Montserrat,sans-serif;margin:14px 0 4px;cursor:pointer}
+label.chk input{width:18px;height:18px;flex:0 0 18px;margin:0;accent-color:var(--acc)}
+.list>div.open{border-left:6px solid var(--acc)}
+.list .row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.list .row.pend{border-left:6px solid var(--pink)}
+.list .row b{display:block}
+.list .row .st{display:inline-block;font:800 10px Unbounded,sans-serif;text-transform:uppercase;margin:4px 0;opacity:.75}
+.list .row small{display:block;overflow-wrap:anywhere}
+.list .row .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex:0 0 auto}
+.list .row .acts .btn{margin:0}
+@media(max-width:600px){.list .row{flex-direction:column}.list .row .acts{justify-content:flex-start}}

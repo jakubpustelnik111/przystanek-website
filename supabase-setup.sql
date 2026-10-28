@@ -1,5 +1,6 @@
 -- Wspólna baza rezerwacji dla strony Przystanek Duży Pokój (Supabase).
 -- Wklej całość w Supabase: SQL Editor -> New query -> Run.
+-- PO NIM uruchom rezerwacje-v2.sql (prośby o rezerwację z potwierdzaniem, telefon, opis publiczny).
 --
 -- Jeśli wcześniej uruchomiłeś starszą wersję skryptu (z obowiązkowymi kolumnami name i phone),
 -- uruchom jednorazowo tylko to. Dzięki temu działa i stara, i nowa wersja formularza:

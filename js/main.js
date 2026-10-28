@@ -51,112 +51,139 @@ async function loadEvents(keep){
  drawE()}
 pickFirst();drawE();
 // rezerwacje
-// Wspólna baza zajętych terminów (Supabase). Uzupełnij dwie wartości po założeniu projektu
-// (instrukcja w README.md, SQL w supabase-setup.sql). Bez nich rezerwacje zapisują się tylko lokalnie.
+// Odwiedzający wysyła PROŚBĘ o rezerwację: trafia ona do bazy jako "oczekuje" i e-mailem (EmailJS) na skrzynkę sali.
+// Termin staje się zajęty dopiero po potwierdzeniu przez administratora w panelu na dole zakładki.
 const SUPABASE_URL="https://pdexenoprsleniazvxic.supabase.co";
 const SUPABASE_KEY="sb_publishable_6B-_YhuJh7PJSIOEyr06Nw_CmaHKmQc";  // klucz publiczny, przeznaczony do użycia w kodzie strony
 const DB_ON=!!(SUPABASE_URL&&SUPABASE_KEY);
 const HDR={"apikey":SUPABASE_KEY,"Content-Type":"application/json"};
 if(SUPABASE_KEY.startsWith("eyJ"))HDR.Authorization="Bearer "+SUPABASE_KEY;
+// EmailJS: powiadomienie o nowej prośbie (szablon: To = skrzynka sali, Reply-To = {{email}}, Subject = {{subject}})
+const EMAILJS={service:"service_eps05b4",template:"template_0ctif7a",key:"dQ49Nuh02xl2ElqT1"};
 const MN=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
-let res=[];try{res=JSON.parse(localStorage.getItem("pdp_res")||"[]")}catch(e){}
-function save(){try{localStorage.setItem("pdp_res",JSON.stringify(res))}catch(e){}}
-let busy=new Set(res.map(r=>r.date));
-let now=new Date(),y=now.getFullYear(),m=now.getMonth(),sel=null;
-sel=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0")+"-"+String(now.getDate()).padStart(2,"0");
-document.getElementById("chosen").textContent="Wybrana data: "+now.getDate()+" "+MN[now.getMonth()].toLowerCase()+" "+now.getFullYear()+" (dziś)";
 const iso=(a,b,c)=>a+"-"+String(b+1).padStart(2,"0")+"-"+String(c).padStart(2,"0");
+const fmtD=k=>+String(k).slice(8,10)+"."+String(k).slice(5,7)+"."+String(k).slice(0,4);
+let busy=new Map();   // data -> publiczny opis (pusty = wydarzenie prywatne)
+let now=new Date(),y=now.getFullYear(),m=now.getMonth();
+const todayKey=iso(now.getFullYear(),now.getMonth(),now.getDate());
+let sel=todayKey;
+const $=id=>document.getElementById(id);
+function showSel(){
+ $("chosen").textContent="Wybrana data: "+(sel?fmtD(sel)+(sel===todayKey?" (dziś)":""):"brak");
+ $("subj").textContent=sel?"Temat: Rezerwacja – "+fmtD(sel):""}
 async function loadBusy(){
- if(!DB_ON){busy=new Set(res.map(r=>r.date));draw();list();return}
  try{const x=await fetch(SUPABASE_URL+"/rest/v1/rpc/busy_dates",{method:"POST",headers:HDR,body:"{}"});
   if(!x.ok)throw new Error("HTTP "+x.status+" "+(await x.text()).slice(0,160));
-  busy=new Set((await x.json()).map(r=>String(r.event_date).slice(0,10)))}
- catch(e){console.error("busy_dates:",e);document.getElementById("msg").textContent="Nie udało się pobrać zajętych terminów ("+e.message+"). Odśwież stronę."}
- await loadAdmin();draw();list()}
-function draw(){const cal=document.getElementById("cal");cal.innerHTML="";
- document.getElementById("mon").textContent=MN[m]+" "+y;
+  busy=new Map((await x.json()).map(r=>[String(r.event_date).slice(0,10),r.public_desc||""]));
+  if(sel&&busy.has(sel)){sel=null}}
+ catch(e){console.error("busy_dates:",e);$("msg").textContent="Nie udało się pobrać zajętych terminów ("+e.message+"). Odśwież stronę."}
+ await loadAdmin();showSel();draw();list()}
+function draw(){const cal=$("cal");cal.innerHTML="";
+ $("mon").textContent=MN[m]+" "+y;
  ["Pn","Wt","Śr","Cz","Pt","So","Nd"].forEach(d=>{const e=document.createElement("div");e.className="dn";e.textContent=d;cal.appendChild(e)});
- const off=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate(),today=iso(now.getFullYear(),now.getMonth(),now.getDate());
+ const off=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate();
  for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
  for(let d=1;d<=n;d++){const k=iso(y,m,d),b=document.createElement("button");b.textContent=d;
   const isBusy=busy.has(k);
-  if(k<today||isBusy)b.disabled=true;if(isBusy)b.classList.add("busy");if(k===today)b.classList.add("today");if(k===sel)b.classList.add("sel");
-  b.onclick=()=>{sel=k;document.getElementById("chosen").textContent="Wybrana data: "+d+" "+MN[m].toLowerCase()+" "+y;draw()};cal.appendChild(b)}}
-document.getElementById("prev").onclick=()=>{m--;if(m<0){m=11;y--}draw()};
-document.getElementById("next").onclick=()=>{m++;if(m>11){m=0;y++}draw()};
-// panel administratora: logowanie przez Supabase Auth, podgląd danych i usuwanie terminów
+  if(k<todayKey||isBusy)b.disabled=true;if(isBusy){b.classList.add("busy");b.title=busy.get(k)||"Zajęty"}
+  if(k===todayKey)b.classList.add("today");if(k===sel)b.classList.add("sel");
+  b.onclick=()=>{sel=k;showSel();draw()};cal.appendChild(b)}}
+$("prev").onclick=()=>{m--;if(m<0){m=11;y--}draw()};
+$("next").onclick=()=>{m++;if(m>11){m=0;y++}draw()};
+// panel administratora: logowanie przez Supabase Auth; potwierdzanie, opis publiczny, usuwanie
 let adminTok=null;try{adminTok=sessionStorage.getItem("pdp_adm")}catch(e){}
 let adminRows=null;
 const AH=()=>({"apikey":SUPABASE_KEY,"Content-Type":"application/json","Authorization":"Bearer "+adminTok});
 function logoutAdmin(){adminTok=null;adminRows=null;try{sessionStorage.removeItem("pdp_adm")}catch(e){}list();drawE()}
 async function loadAdmin(){
- if(!DB_ON||!adminTok){adminRows=null;return}
- try{const x=await fetch(SUPABASE_URL+"/rest/v1/reservations?select=id,event_date,title,email,note&order=event_date.asc",{headers:AH()});
+ if(!adminTok){adminRows=null;return}
+ try{const x=await fetch(SUPABASE_URL+"/rest/v1/reservations?select=id,event_date,title,email,phone,note,status,is_public,public_desc&order=event_date.asc",{headers:AH()});
   if(x.status===401||x.status===403){logoutAdmin();return}
   if(!x.ok)throw new Error("HTTP "+x.status);
   adminRows=await x.json()}
  catch(e){adminRows=null}}
-async function removeRes(row){
- const msg=document.getElementById("adm-msg");
- if(!confirm("Usunąć termin "+fmtD(row.event_date||row.date)+" ("+row.title+")?"))return;
- if(!DB_ON){res=res.filter(r=>r!==row);save();busy=new Set(res.map(r=>r.date));draw();list();return}
- try{const x=await fetch(SUPABASE_URL+"/rest/v1/reservations?id=eq."+row.id,{method:"DELETE",headers:{...AH(),"Prefer":"return=minimal"}});
-  if(x.status===401||x.status===403){logoutAdmin();alert("Sesja wygasła. Zaloguj się ponownie.");return}
-  if(!x.ok)throw new Error("HTTP "+x.status)}
- catch(e){alert("Nie udało się usunąć terminu. Spróbuj ponownie.");return}
- await loadAdmin();await loadBusy()}
-const fmtD=k=>+String(k).slice(8,10)+"."+String(k).slice(5,7)+"."+String(k).slice(0,4);
-function list(){const l=document.getElementById("list");l.innerHTML="";
- const today=iso(now.getFullYear(),now.getMonth(),now.getDate());
- const adm=DB_ON&&adminTok&&adminRows;
- document.getElementById("admlink").hidden=!!adm||!DB_ON;document.getElementById("admout").hidden=!adm;
- document.getElementById("adm").hidden=!!adm||!DB_ON||document.getElementById("adm").dataset.open!=="1";
- // wiersze do wyświetlenia: administrator (baza) widzi szczegóły, w trybie lokalnym użytkownik zarządza swoimi wpisami
- const rows=adm?adminRows:(!DB_ON?res.map(r=>({...r,event_date:r.date,_loc:r})):null);
- if(rows){
-  if(!rows.length){l.textContent="Brak zajętych terminów.";return}
-  [...rows].sort((a,b)=>a.event_date<b.event_date?-1:1).forEach(r=>{
-   const d=document.createElement("div");d.style.cssText="display:flex;justify-content:space-between;gap:12px;align-items:flex-start";
-   const t=document.createElement("span");
-   t.textContent=fmtD(r.event_date)+" · "+r.title+(adm?" · "+r.email+(r.note&&r.note!=="-"?" · "+r.note:""):"");
-   const b=document.createElement("button");b.className="btn";b.textContent="Usuń";b.style.padding="6px 10px";b.onclick=()=>removeRes(adm?r:r._loc);
-   d.appendChild(t);d.appendChild(b);l.appendChild(d)});return}
- const ds=[...busy].filter(k=>k>=today).sort();
+async function adminCall(path,method,body){
+ const x=await fetch(SUPABASE_URL+"/rest/v1/reservations?"+path,{method,headers:{...AH(),"Prefer":"return=minimal"},body:body?JSON.stringify(body):undefined});
+ if(x.status===401||x.status===403){logoutAdmin();alert("Sesja wygasła. Zaloguj się ponownie.");return false}
+ if(x.status===409){alert("Ten termin jest już potwierdzony dla innej rezerwacji.");return false}
+ if(!x.ok){alert("Operacja nie powiodła się (HTTP "+x.status+"). Spróbuj ponownie.");return false}
+ return true}
+async function removeRes(r){
+ if(!confirm("Usunąć "+(r.status==="confirmed"?"termin":"prośbę")+" "+fmtD(r.event_date)+" ("+r.title+")?"))return;
+ if(await adminCall("id=eq."+r.id,"DELETE"))await loadBusy()}
+async function confirmRes(r){
+ if(!confirm("Potwierdzić rezerwację "+fmtD(r.event_date)+" ("+r.title+")? Termin pojawi się na stronie jako zajęty."))return;
+ if(await adminCall("id=eq."+r.id,"PATCH",{status:"confirmed"}))await loadBusy()}
+async function editDesc(r){
+ const v=prompt("Opis widoczny na stronie obok daty (zostaw puste, jeśli wydarzenie jest prywatne):",r.public_desc||"");
+ if(v===null)return;const t=v.trim().slice(0,200);
+ if(await adminCall("id=eq."+r.id,"PATCH",{is_public:!!t,public_desc:t||null}))await loadBusy()}
+function mkBtn(txt,fn){const b=document.createElement("button");b.className="btn";b.textContent=txt;b.style.padding="6px 10px";b.onclick=fn;return b}
+function list(){const l=$("list");l.innerHTML="";
+ const adm=adminTok&&adminRows;
+ $("admlink").hidden=!!adm;$("admout").hidden=!adm;
+ $("adm").hidden=!!adm||$("adm").dataset.open!=="1";
+ $("list-h").textContent=adm?"Rezerwacje (panel administratora)":"Zajęte terminy";
+ if(adm){
+  if(!adminRows.length){l.textContent="Brak rezerwacji.";return}
+  const ord=r=>(r.status==="pending"?"0":"1")+r.event_date;
+  [...adminRows].sort((a,b)=>ord(a)<ord(b)?-1:1).forEach(r=>{
+   const d=document.createElement("div");d.className="row"+(r.status==="pending"?" pend":"");
+   const t=document.createElement("div");
+   const h=document.createElement("b");h.textContent=fmtD(r.event_date)+" · "+r.title;
+   const st=document.createElement("span");st.className="st";st.textContent=r.status==="pending"?"oczekuje":(r.is_public?"potwierdzona · otwarte":"potwierdzona · prywatne");
+   const info=document.createElement("small");
+   info.textContent=[r.email,r.phone,r.note,r.public_desc?"Opis publiczny: "+r.public_desc:""].filter(Boolean).join(" · ");
+   t.append(h,st,info);
+   const a=document.createElement("div");a.className="acts";
+   if(r.status==="pending")a.append(mkBtn("Potwierdź",()=>confirmRes(r)));
+   a.append(mkBtn("Opis",()=>editDesc(r)),mkBtn("Usuń",()=>removeRes(r)));
+   d.append(t,a);l.appendChild(d)});return}
+ const ds=[...busy.keys()].filter(k=>k>=todayKey).sort();
  if(!ds.length){l.textContent="Brak zajętych terminów.";return}
- ds.forEach(k=>{const d=document.createElement("div");d.textContent=fmtD(k)+" · zajęty";l.appendChild(d)})}
-document.getElementById("admlink").onclick=e=>{e.preventDefault();const a=document.getElementById("adm");a.dataset.open="1";a.hidden=false}
-document.getElementById("admout").onclick=e=>{e.preventDefault();logoutAdmin()};
-document.getElementById("adm-login").onclick=async()=>{
- const msg=document.getElementById("adm-msg"),btn=document.getElementById("adm-login");
- const email=document.getElementById("adm-mail").value.trim(),pass=document.getElementById("adm-pass").value;
+ ds.forEach(k=>{const d=document.createElement("div");const desc=busy.get(k);
+  const b=document.createElement("b");b.textContent=fmtD(k);d.append(b,document.createTextNode(" · "+(desc||"zajęty")));
+  if(desc)d.className="open";l.appendChild(d)})}
+$("admlink").onclick=e=>{e.preventDefault();const a=$("adm");a.dataset.open="1";a.hidden=false}
+$("admout").onclick=e=>{e.preventDefault();logoutAdmin()};
+$("adm-login").onclick=async()=>{
+ const msg=$("adm-msg"),btn=$("adm-login");
+ const email=$("adm-mail").value.trim(),pass=$("adm-pass").value;
  if(!email||!pass){msg.textContent="Podaj e-mail i hasło.";return}
  btn.disabled=true;msg.textContent="Logowanie…";
  try{const x=await fetch(SUPABASE_URL+"/auth/v1/token?grant_type=password",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({email,password:pass})});
   if(!x.ok)throw new Error("login");
   adminTok=(await x.json()).access_token;try{sessionStorage.setItem("pdp_adm",adminTok)}catch(e){}
-  document.getElementById("adm-pass").value="";msg.textContent="";
+  $("adm-pass").value="";msg.textContent="";
   await loadAdmin();list();drawE()}
  catch(e){msg.textContent="Nie udało się zalogować. Sprawdź e-mail i hasło."}
  finally{btn.disabled=false}};
-document.getElementById("send").onclick=async()=>{const g=id=>document.getElementById(id).value.trim(),msg=document.getElementById("msg");
+$("f-open").onchange=()=>{$("f-pub-wrap").hidden=!$("f-open").checked};
+async function sendMail(p){
+ const x=await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({service_id:EMAILJS.service,template_id:EMAILJS.template,user_id:EMAILJS.key,template_params:p})});
+ if(!x.ok)throw new Error("EmailJS "+x.status+" "+(await x.text()).slice(0,120))}
+$("send").onclick=async()=>{const g=id=>$(id).value.trim(),msg=$("msg");
  if(!sel){msg.textContent="Najpierw wybierz datę w kalendarzu.";return}
- if(!g("f-title")||!g("f-mail")){msg.textContent="Uzupełnij tytuł wydarzenia i e-mail.";return}
- const r={date:sel,title:g("f-title"),mail:g("f-mail"),note:g("f-note")};
- const btn=document.getElementById("send");btn.disabled=true;
+ const r={date:sel,title:g("f-title"),mail:g("f-mail"),phone:g("f-phone"),details:g("f-note"),open:$("f-open").checked,pub:g("f-pub")};
+ if(!r.title||!r.mail||!r.phone){msg.textContent="Uzupełnij tytuł wydarzenia, e-mail i numer telefonu.";return}
+ if(!/^\S+@\S+\.\S+$/.test(r.mail)){msg.textContent="Sprawdź adres e-mail.";return}
+ if(r.open&&!r.pub){msg.textContent="Dopisz opis wydarzenia otwartego albo odznacz tę opcję.";return}
+ const btn=$("send");btn.disabled=true;msg.textContent="Wysyłanie…";
  try{
-  if(DB_ON){
-   msg.textContent="Zapisywanie…";
-   const x=await fetch(SUPABASE_URL+"/rest/v1/reservations",{method:"POST",headers:{...HDR,"Prefer":"return=minimal"},
-    body:JSON.stringify({event_date:r.date,title:r.title,email:r.mail,note:r.note||null})});
-   if(x.status===409){sel=null;document.getElementById("chosen").textContent="Wybrana data: brak";await loadBusy();msg.textContent="Ten termin został przed chwilą zajęty. Wybierz inną datę.";return}
-   if(!x.ok)throw new Error("HTTP "+x.status+" "+(await x.text()).slice(0,160));
-  }else{res.push(r);save()}
-  busy.add(r.date);
-  msg.textContent="Dziękujemy! Rezerwacja na "+r.date+" została zapisana.";sel=null;
-  document.getElementById("chosen").textContent="Wybrana data: brak";["f-title","f-mail","f-note"].forEach(i=>document.getElementById(i).value="");draw();list();
- }catch(e){console.error("reservation:",e);msg.textContent="Nie udało się zapisać rezerwacji ("+e.message+"). Spróbuj ponownie za chwilę."}
+  const x=await fetch(SUPABASE_URL+"/rest/v1/reservations",{method:"POST",headers:{...HDR,"Prefer":"return=minimal"},
+   body:JSON.stringify({event_date:r.date,title:r.title,email:r.mail,phone:r.phone,note:r.details||null,is_public:r.open,public_desc:r.open?r.pub:null,status:"pending"})});
+  if(!x.ok)throw new Error("HTTP "+x.status+" "+(await x.text()).slice(0,160));
+  try{await sendMail({subject:"Rezerwacja – "+fmtD(r.date)+" – "+r.title,date:fmtD(r.date),title:r.title,email:r.mail,reply_to:r.mail,phone:r.phone,
+   details:r.details||"-",event_type:r.open?"otwarte":"prywatne",public_desc:r.open?r.pub:"-"})}
+  catch(e){console.error("powiadomienie e-mail:",e)}   // prośba i tak jest zapisana w panelu administratora
+  msg.textContent="Dziękujemy! Prośba o rezerwację na "+fmtD(r.date)+" została wysłana. Termin zostanie potwierdzony przez właściciela, odpowiemy na podany e-mail.";
+  sel=null;showSel();["f-title","f-mail","f-phone","f-note","f-pub"].forEach(i=>$(i).value="");$("f-open").checked=false;$("f-pub-wrap").hidden=true;
+  await loadAdmin();draw();list();
+ }catch(e){console.error("reservation:",e);msg.textContent="Nie udało się wysłać prośby ("+e.message+"). Spróbuj ponownie za chwilę albo zadzwoń: 607 415 412."}
  finally{btn.disabled=false}};
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&DB_ON)loadBusy()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadBusy()});
+showSel();draw();
 loadBusy();
 // r4b4n: dodawanie i usuwanie wydarzeń przez administratora
 document.getElementById("eadd").onclick=async()=>{
