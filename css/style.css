@@ -186,7 +186,5 @@ html.theme-anim,html.theme-anim *{transition:background-color .35s,color .35s,bo
 @media(max-width:900px){.theme{padding:0 14px}}
 @media(max-width:600px){.theme{position:absolute;top:0;right:0;height:69px;min-height:0;border-left:1px solid var(--line);padding:0 16px}.theme span{display:none}.theme svg{width:22px;height:22px}}
 
-/* logo: w ciemnym motywie wersja z przezroczystym tłem */
-.brand .logo-d{display:none}
-:root[data-theme="dark"] .brand .logo-l{display:none}:root[data-theme="dark"] .brand .logo-d{display:block}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .brand .logo-l{display:none}:root:not([data-theme="light"]) .brand .logo-d{display:block}}
+/* logo sali: zawsze wersja z przezroczystym tłem (img/logo-t.png) */
+.brand img.logo{mix-blend-mode:normal;filter:none}
