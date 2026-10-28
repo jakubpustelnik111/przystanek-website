@@ -193,3 +193,15 @@ loadEvents();
   grid.style.setProperty("--mx",tx+"px");grid.style.setProperty("--my",ty+"px");
   requestAnimationFrame(loop)})();
 })();
+
+// przełącznik motywu: zapamiętuje wybór w przeglądarce; bez wyboru działa motyw systemowy
+(function(){
+ const btn=document.getElementById("theme"),lab=document.getElementById("theme-l"),root=document.documentElement;
+ const sys=()=>window.matchMedia&&matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light";
+ const cur=()=>root.dataset.theme||sys();
+ const paint=()=>{const d=cur()==="dark";lab.textContent=d?"Jasny":"Ciemny";btn.setAttribute("aria-label",d?"Włącz jasny motyw":"Włącz ciemny motyw");btn.setAttribute("aria-pressed",d)};
+ btn.onclick=()=>{const n=cur()==="dark"?"light":"dark";root.classList.add("theme-anim");root.dataset.theme=n;
+  try{localStorage.setItem("pdp_theme",n)}catch(e){}paint();setTimeout(()=>root.classList.remove("theme-anim"),400)};
+ if(window.matchMedia)matchMedia("(prefers-color-scheme:dark)").addEventListener?.("change",paint);
+ paint();
+})();

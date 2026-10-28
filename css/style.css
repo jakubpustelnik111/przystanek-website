@@ -11,7 +11,7 @@ h1,h2,h3,.d{font-family:Unbounded,Impact,sans-serif;font-weight:800;margin:0;let
 header{display:flex;border-bottom:1px solid var(--line);flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:14px;padding:14px 22px;border-right:1px solid var(--line);min-width:0}
 .brand img{height:54px;mix-blend-mode:multiply}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .brand img{mix-blend-mode:normal;filter:invert(1) hue-rotate(180deg) brightness(1.1)}}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .brand img{mix-blend-mode:normal;filter:none}}
 .brand b{font:800 15px/1.15 Unbounded,sans-serif;text-transform:uppercase}
 nav{display:flex;flex:1;min-width:260px}
 nav a{flex:1;display:flex;align-items:center;justify-content:space-between;padding:0 22px;min-height:56px;border-right:1px solid var(--line);color:var(--ink);text-decoration:none;font:800 15px Unbounded,sans-serif}
@@ -172,3 +172,16 @@ body.g .cur-blob{background:radial-gradient(circle,#1fa35c,#a6e34a 70%,transpare
  -webkit-mask-image:radial-gradient(circle 170px at var(--mx,-999px) var(--my,-999px),#000,transparent);
  mask-image:radial-gradient(circle 170px at var(--mx,-999px) var(--my,-999px),#000,transparent)}
 body.g .cur-grid{background-image:linear-gradient(#1fa35c 1px,transparent 1px),linear-gradient(90deg,#1fa35c 1px,transparent 1px)}
+
+/* przełącznik motywu jasny/ciemny */
+:root[data-theme="dark"] .brand img{mix-blend-mode:normal;filter:none}
+:root[data-theme="light"] .r4logo{filter:none}
+header{position:relative}
+.theme{display:flex;align-items:center;gap:10px;padding:0 22px;min-height:56px;border:0;border-left:1px solid var(--line);background:transparent;color:var(--ink);font:800 12px Unbounded,sans-serif;cursor:pointer}
+.theme svg{width:20px;height:20px;transition:transform .5s}
+.theme:hover{background:var(--ink);color:var(--bg)}
+.theme:hover svg{transform:rotate(180deg)}
+.theme:focus-visible{outline:2px solid var(--acc);outline-offset:-4px}
+html.theme-anim,html.theme-anim *{transition:background-color .35s,color .35s,border-color .35s!important}
+@media(max-width:900px){.theme{padding:0 14px}}
+@media(max-width:600px){.theme{position:absolute;top:0;right:0;height:69px;min-height:0;border-left:1px solid var(--line);padding:0 16px}.theme span{display:none}.theme svg{width:22px;height:22px}}
