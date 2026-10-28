@@ -159,3 +159,16 @@ nav a[data-v="r4b4n"]:hover,nav a[data-v="r4b4n"]:focus-visible{background:linea
 .djs dd{margin:0;padding:6px 0 6px 12px;border-left:4px solid #1fa35c;background:var(--card)}
 
 .about .hot{font:800 15px/1.3 Unbounded,sans-serif;padding:10px 12px;border-left:6px solid #1fa35c;background:var(--card)}
+
+/* efekt kursora: plama + rozświetlana siatka (komputery) */
+.cur-blob,.cur-grid{position:fixed;pointer-events:none;opacity:0;transition:opacity .4s}
+body.cur-on .cur-blob{opacity:.38}body.cur-on .cur-grid{opacity:1}
+.cur-blob{left:0;top:0;width:380px;height:380px;border-radius:50%;z-index:0;filter:blur(55px);will-change:transform;
+ background:radial-gradient(circle,var(--pink),var(--acc) 70%,transparent 72%)}
+body.g .cur-blob{background:radial-gradient(circle,#1fa35c,#a6e34a 70%,transparent 72%)}
+.cur-grid{inset:0;z-index:2;
+ background-image:linear-gradient(var(--acc) 1px,transparent 1px),linear-gradient(90deg,var(--acc) 1px,transparent 1px);
+ background-size:64px 64px;
+ -webkit-mask-image:radial-gradient(circle 170px at var(--mx,-999px) var(--my,-999px),#000,transparent);
+ mask-image:radial-gradient(circle 170px at var(--mx,-999px) var(--my,-999px),#000,transparent)}
+body.g .cur-grid{background-image:linear-gradient(#1fa35c 1px,transparent 1px),linear-gradient(90deg,#1fa35c 1px,transparent 1px)}

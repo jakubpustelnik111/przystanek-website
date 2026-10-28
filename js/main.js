@@ -177,3 +177,19 @@ document.getElementById("edel").onclick=async()=>{
   m.textContent="Usunięto.";await loadEvents(false)}
  catch(e){m.textContent="Nie udało się usunąć ("+e.message+")."}};
 loadEvents();
+
+// efekt kursora (tylko komputery z myszą, wyłączony przy "ogranicz ruch"): plama podąża za kursorem i rozświetla siatkę
+(function(){
+ if(!window.matchMedia||!matchMedia("(hover:hover) and (pointer:fine)").matches||matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+ const blob=document.createElement("div"),grid=document.createElement("div");
+ blob.className="cur-blob";grid.className="cur-grid";blob.setAttribute("aria-hidden","true");grid.setAttribute("aria-hidden","true");
+ document.body.appendChild(blob);document.body.appendChild(grid);
+ let tx=innerWidth/2,ty=innerHeight/2,x=tx,y=ty,on=false;
+ addEventListener("mousemove",e=>{tx=e.clientX;ty=e.clientY;if(!on){on=true;x=tx;y=ty;document.body.classList.add("cur-on")}},{passive:true});
+ document.addEventListener("mouseleave",()=>{on=false;document.body.classList.remove("cur-on")});
+ (function loop(){
+  x+=(tx-x)*.12;y+=(ty-y)*.12;
+  blob.style.transform="translate("+(x-190)+"px,"+(y-190)+"px)";
+  grid.style.setProperty("--mx",tx+"px");grid.style.setProperty("--my",ty+"px");
+  requestAnimationFrame(loop)})();
+})();
