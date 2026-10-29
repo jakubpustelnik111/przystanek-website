@@ -22,7 +22,7 @@ const EVENTS={"2026-11-14":"2Faces vol. 1"};
 const IG_R4="https://www.instagram.com/_r4b4n_/";
 // Szczegóły wydarzeń zapisane w kodzie (uzupełniają dane z bazy; pola wpisane w panelu mają pierwszeństwo)
 const EVENT_INFO={
- "2026-11-14":{title:"2Faces vol. 1",poster_url:"img/events/2faces-vol1.jpg",time_text:"20:00–02:00",
+ "2026-11-14":{title:"2Faces vol. 1",post_url:"https://www.instagram.com/p/Dew3KNdiMfJ/",poster_url:"img/events/2faces-vol1.jpg",time_text:"20:00–02:00",
   lineup:"Stage 1 · od 20:00: ???, Frano, Grajek\nStage 2 · od 23:00: Kubaswat, Pusty, Rekrut",entry:"20/30 zł",
   description:"Pierwsza edycja cyklu 2FACES: najpierw luźniejszy 1st Face nastawiony na zabawę, potem 2nd Face, w którym jako selektorzy i diggerzy pokazujemy Wam coś nowego. Wpadaj!"}};
 let EV={...EVENTS},EVID={},EVD={};
@@ -71,6 +71,7 @@ function openEvent(k){if(!EV[k])return;
  const ds=document.getElementById("evm-desc");ds.textContent=r.description||"";ds.hidden=!r.description;
  if(!dl.children.length&&!r.description){ds.textContent="Szczegóły wkrótce. Śledź nas na Instagramie.";ds.hidden=false}
  const post=document.getElementById("evm-post");if(r.post_url){post.href=r.post_url;post.hidden=false}else post.hidden=true;
+ document.getElementById("evm-ig").hidden=!!r.post_url;   // gdy jest post, zamiast ogólnego profilu
  evmBack=document.activeElement;evm.hidden=false;document.body.classList.add("modal-on");document.getElementById("evm-x").focus()}
 function closeEvent(){evm.hidden=true;document.body.classList.remove("modal-on");if(evmBack&&evmBack.focus)evmBack.focus()}
 document.getElementById("evm-x").onclick=closeEvent;
