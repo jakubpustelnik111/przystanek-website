@@ -1,6 +1,5 @@
-// Wysyłka rezerwacji na e-mail jest na razie wyłączona (do dopracowania).
-// Rezerwacje zapisują się tylko w przeglądarce użytkownika (localStorage).
-const V=["start","rezerwacje","r4b4n"];
+// zakładki strony (adres #nazwa); "prywatnosc" nie ma pozycji w menu, link jest w stopce i pod formularzem
+const V=["start","rezerwacje","r4b4n","prywatnosc"];
 function show(){let h=(location.hash||"#start").slice(1);if(!V.includes(h))h="start";
  V.forEach(v=>{document.getElementById("v-"+v).classList.toggle("on",v===h)});
  document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===h));document.body.classList.toggle("g",h==="r4b4n");window.scrollTo(0,0)}

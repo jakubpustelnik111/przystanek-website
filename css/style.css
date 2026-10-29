@@ -206,3 +206,10 @@ label.chk input{width:18px;height:18px;flex:0 0 18px;margin:0;accent-color:var(-
 /* wydarzenia r4b4n w kalendarzu rezerwacji */
 .cal button.r4,.cal button.r4:disabled{background:#1fa35c;color:#fff;font-weight:800;opacity:1;cursor:not-allowed}
 .list>div.r4{border-left:6px solid #1fa35c}
+
+/* klauzula RODO i polityka prywatności */
+.rodo{font-size:11px;line-height:1.5;opacity:.8;margin:14px 0 0}
+.rodo a,.policy a{color:inherit;text-decoration:underline}
+.policy{max-width:820px}
+.policy h2{font-size:15px;margin:22px 0 6px}.policy h2:first-child{margin-top:0}
+.policy p{margin:0 0 10px}

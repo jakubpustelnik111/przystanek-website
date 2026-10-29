@@ -4,7 +4,7 @@
 <title>Przystanek Duży Pokój</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Montserrat:wght@400;500;600&display=swap">
 <script>try{var t=localStorage.getItem("pdp_theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
-<link rel="stylesheet" href="css/style.css?v=17"></head><body>
+<link rel="stylesheet" href="css/style.css?v=18"></head><body>
 <div class="wrap">
 <header>
  <a class="brand" href="#start" style="text-decoration:none;color:inherit"><img class="logo" src="img/logo-t.png" alt="Logo Przystanek Duży Pokój"><b>Przystanek<br>Duży Pokój</b></a>
@@ -28,7 +28,7 @@
  <div class="grid2">
   <div class="band"><h2 style="font-size:20px;margin-bottom:12px">Napisz lub zadzwoń</h2>
    <dl class="contact">
-    <dt>E-mail</dt><dd class="edit">adres@email.pl</dd>
+    <dt>E-mail</dt><dd class="edit"><a href="mailto:przystanekduzypokoj@gmail.com" style="color:inherit">przystanekduzypokoj@gmail.com</a></dd>
     <dt>Telefon</dt><dd class="edit"><a href="tel:+48607415412" style="color:inherit">607 415 412</a></dd>
     <dt>Godziny</dt><dd class="edit">Godziny otwarcia klubu (wg Google):<br>pn 19:00–23:00 · wt 16:00–22:00 · śr 17:30–23:00 · czw zamknięte · pt 17:30–00:00 · sob 20:00–00:00 · nd 16:00–23:00</dd>
    </dl></div>
@@ -58,7 +58,8 @@
    <label for="f-note">Szczegóły rezerwacji</label><textarea id="f-note" rows="4" maxlength="1000" placeholder="Godziny, liczba osób, sprzęt, rodzaj wydarzenia…"></textarea>
    <label class="chk"><input type="checkbox" id="f-open"> Wydarzenie otwarte (opis pojawi się na stronie obok daty)</label>
    <div id="f-pub-wrap" hidden><label for="f-pub">Opis wydarzenia widoczny na stronie</label><textarea id="f-pub" rows="2" maxlength="200" placeholder="np. Techno night – wstęp wolny"></textarea></div>
-   <p><button class="btn" id="send">Zarezerwuj ↗</button></p><div class="msg" id="msg"></div></div>
+   <p><button class="btn" id="send">Zarezerwuj ↗</button></p><div class="msg" id="msg"></div>
+   <p class="rodo">Administratorem danych podanych w formularzu (tytuł, e-mail, telefon, szczegóły) jest Przystanek Duży Pokój. Dane przetwarzamy wyłącznie w celu obsługi prośby o rezerwację i kontaktu w jej sprawie (art. 6 ust. 1 lit. b RODO). Więcej, w tym o Twoich prawach: <a href="#prywatnosc">Polityka prywatności</a>.</p></div>
   </div>
  </div>
  <div class="band"><h2 style="font-size:16px" id="list-h">Zajęte terminy</h2><div class="list" id="list"></div>
@@ -119,6 +120,27 @@
    <a class="btn" href="https://www.instagram.com/_r4b4n_/" target="_blank" rel="noopener">Instagram ↗</a>
   </div></div>
 </section>
-<footer><span class="d" style="font-size:12px">Przystanek Duży Pokój</span><span>© 2026</span></footer>
+<section class="view" id="v-prywatnosc">
+ <div class="band"><h1 class="big">Polityka prywatności</h1><p style="margin:10px 0 0">Obowiązuje od 1 listopada 2026 r.</p></div>
+ <div class="band policy">
+  <h2>1. Administrator danych</h2>
+  <p>Administratorem danych osobowych jest Przystanek Duży Pokój, Rondo Kaponiera, 60-829 Poznań (dalej: „my”). Kontakt w sprawach danych osobowych: <a href="mailto:przystanekduzypokoj@gmail.com">przystanekduzypokoj@gmail.com</a>, tel. 607 415 412.</p>
+  <h2>2. Jakie dane zbieramy i po co</h2>
+  <p>Gdy wysyłasz prośbę o rezerwację, przetwarzamy dane podane w formularzu: tytuł wydarzenia, adres e-mail, numer telefonu, szczegóły rezerwacji oraz – jeśli zaznaczysz wydarzenie otwarte – opis publiczny. Robimy to, aby rozpatrzyć prośbę, skontaktować się z Tobą i zorganizować wydarzenie, czyli w celu podjęcia działań na Twoje żądanie przed zawarciem umowy (art. 6 ust. 1 lit. b RODO). Podanie danych jest dobrowolne, ale bez nich nie możemy obsłużyć rezerwacji.</p>
+  <p>Opis wydarzenia otwartego (bez e-maila i telefonu) jest widoczny publicznie na stronie obok daty, gdy rezerwacja zostanie potwierdzona.</p>
+  <h2>3. Komu przekazujemy dane</h2>
+  <p>Korzystamy z usług zewnętrznych dostawców, którzy przetwarzają dane w naszym imieniu: Supabase (baza danych rezerwacji), EmailJS (wysyłka powiadomienia o prośbie), Google (skrzynka e-mail Gmail oraz czcionki Google Fonts) i GitHub (hosting strony). Część z tych firm może przetwarzać dane poza Europejskim Obszarem Gospodarczym, na podstawie mechanizmów przewidzianych w RODO, takich jak standardowe klauzule umowne. Nie sprzedajemy danych i nie wykorzystujemy ich do reklamy.</p>
+  <h2>4. Jak długo przechowujemy dane</h2>
+  <p>Dane z prośby o rezerwację przechowujemy do czasu jej rozpatrzenia, a w przypadku potwierdzonej rezerwacji – do zakończenia wydarzenia i rozliczeń, nie dłużej niż 12 miesięcy od daty wydarzenia, chyba że dłuższy okres wynika z przepisów prawa.</p>
+  <h2>5. Twoje prawa</h2>
+  <p>Masz prawo do dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przeniesienia oraz wniesienia sprzeciwu. Aby skorzystać z tych praw, napisz na <a href="mailto:przystanekduzypokoj@gmail.com">przystanekduzypokoj@gmail.com</a>. Przysługuje Ci też prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych (ul. Stawki 2, 00-193 Warszawa).</p>
+  <h2>6. Pliki cookies i pamięć przeglądarki</h2>
+  <p>Strona nie używa cookies reklamowych ani analitycznych. W pamięci Twojej przeglądarki (localStorage, sessionStorage) zapisujemy tylko wybrany motyw jasny/ciemny oraz – wyłącznie dla administratora – sesję logowania do panelu. Serwery dostawców (np. GitHub, Google Fonts) mogą technicznie rejestrować adres IP przy wyświetlaniu strony.</p>
+  <h2>7. Zmiany</h2>
+  <p>Możemy aktualizować tę politykę, np. gdy zmienią się usługi, z których korzystamy. Aktualna wersja jest zawsze dostępna na tej stronie.</p>
+  <p style="margin-top:22px"><a class="btn" href="#rezerwacje" style="text-decoration:none;display:inline-block">← Wróć do rezerwacji</a></p>
+ </div>
+</section>
+<footer><span class="d" style="font-size:12px">Przystanek Duży Pokój</span><a href="#prywatnosc" style="color:inherit">Polityka prywatności</a><span>© 2026</span></footer>
 </div>
-<script src="js/main.js?v=20"></script></body></html>
+<script src="js/main.js?v=21"></script></body></html>
