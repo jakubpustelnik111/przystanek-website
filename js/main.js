@@ -20,6 +20,11 @@ document.querySelectorAll(".gal").forEach(initGallery);
 // Zapasowa lista, używana gdy baza jest niedostępna: "RRRR-MM-DD":"Nazwa"
 const EVENTS={"2026-11-14":"2Faces first edition"};
 const IG_R4="https://www.instagram.com/_r4b4n_/";
+// Szczegóły wydarzeń zapisane w kodzie (uzupełniają dane z bazy; pola wpisane w panelu mają pierwszeństwo)
+const EVENT_INFO={
+ "2026-11-14":{poster_url:"img/events/2faces-vol1.jpg",time_text:"20:00–02:00",
+  lineup:"Stage 1 · od 20:00: ???, Frano, Grajek\nStage 2 · od 23:00: Kubaswat, Pusty, Rekrut",entry:"20 / 30 zł",
+  description:"Pierwsza edycja cyklu 2FACES: najpierw luźniejszy 1st Face nastawiony na zabawę, potem 2nd Face, w którym jako selektorzy i diggerzy pokazujemy Wam coś nowego. Wpadaj!"}};
 let EV={...EVENTS},EVID={},EVD={};
 const MNE=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
 const DNE=["niedziela","poniedziałek","wtorek","środa","czwartek","piątek","sobota"];
@@ -52,7 +57,9 @@ document.getElementById("eprev").onclick=()=>{em--;if(em<0){em=11;ey--}drawE()};
 document.getElementById("enext").onclick=()=>{em++;if(em>11){em=0;ey++}drawE()};
 // okno wydarzenia (pop-up)
 const evm=document.getElementById("evm");let evmBack=null;
-function openEvent(k){const r=EVD[k]||{event_date:k,title:EV[k]};if(!EV[k])return;
+function openEvent(k){if(!EV[k])return;
+ const r={...(EVENT_INFO[k]||{}),event_date:k,title:EV[k]};
+ Object.entries(EVD[k]||{}).forEach(([a,b])=>{if(b!==null&&b!==""&&a!=="title")r[a]=b});
  const dt=new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8,10));
  document.getElementById("evm-date").textContent=DNE[dt.getDay()]+", "+fmt(k);
  document.getElementById("evm-title").textContent=r.title;

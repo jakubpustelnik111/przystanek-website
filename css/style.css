@@ -249,3 +249,5 @@ body.modal-on{overflow:hidden}
 
 /* atrybut hidden zawsze ukrywa element (nadpisuje display z innych reguł) */
 [hidden]{display:none!important}
+
+.evm-facts dd{white-space:pre-line}
