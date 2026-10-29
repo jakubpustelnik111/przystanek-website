@@ -4,7 +4,7 @@
 <title>Przystanek Duży Pokój</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Montserrat:wght@400;500;600&display=swap">
 <script>try{var t=localStorage.getItem("pdp_theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
-<link rel="stylesheet" href="css/style.css?v=18"></head><body>
+<link rel="stylesheet" href="css/style.css?v=19"></head><body>
 <div class="wrap">
 <header>
  <a class="brand" href="#start" style="text-decoration:none;color:inherit"><img class="logo" src="img/logo-t.png" alt="Logo Przystanek Duży Pokój"><b>Przystanek<br>Duży Pokój</b></a>
@@ -81,9 +81,15 @@
    <div class="cal-h"><button id="eprev" aria-label="Poprzedni miesiąc">←</button><h3 id="emon" style="font-size:16px"></h3><button id="enext" aria-label="Następny miesiąc">→</button></div>
    <div class="cal" id="ecal"></div>
    <p class="einfo" id="einfo"></p>
-   <div id="eadm" hidden style="margin-top:14px"><label>Dodaj wydarzenie (panel administratora)</label>
-    <input id="edate" type="date"><input id="etitle" placeholder="Nazwa wydarzenia" style="margin-top:8px">
-    <p style="margin:10px 0 0"><button class="btn" id="eadd">Dodaj ↗</button> <button class="btn" id="edel" hidden>Usuń wybrane</button></p><div class="msg" id="emsg"></div></div>
+   <div id="eadm" hidden style="margin-top:14px"><label id="eform-h">Dodaj wydarzenie (panel administratora)</label>
+    <input id="edate" type="date" aria-label="Data wydarzenia"><input id="etitle" placeholder="Nazwa wydarzenia" style="margin-top:8px" maxlength="120">
+    <input id="etime" placeholder="Godziny, np. 21:00–03:00" style="margin-top:8px" maxlength="80">
+    <input id="elineup" placeholder="Line-up, np. Pusty b2b Grajek" style="margin-top:8px" maxlength="300">
+    <input id="eentry" placeholder="Wejście, np. 20 zł / wstęp wolny" style="margin-top:8px" maxlength="120">
+    <textarea id="edesc" rows="3" placeholder="Opis wydarzenia" style="margin-top:8px" maxlength="1500"></textarea>
+    <input id="epost" type="url" placeholder="Link do posta na Instagramie (https://…)" style="margin-top:8px">
+    <label for="eposter">Plakat (JPG/PNG, zostaw puste, żeby nie zmieniać)</label><input id="eposter" type="file" accept="image/*">
+    <p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="eadd">Dodaj ↗</button><button class="btn" id="ecancel" hidden>Anuluj</button><button class="btn" id="eedit" hidden>Edytuj wybrane</button><button class="btn" id="edel" hidden>Usuń wybrane</button></p><div class="msg" id="emsg"></div></div>
   </div>
   <div class="gal half"><button class="arrow l" aria-label="Poprzednie">←</button><button class="arrow r" aria-label="Następne">→</button>
    <div class="track"><div class="slide photo"><img src="img/r4b4n/r4b4n-01.jpg" alt="Zdjęcie z występu r4b4n" loading="eager" decoding="async"></div><div class="slide photo"><img src="img/r4b4n/r4b4n-02.jpg" alt="Zdjęcie z występu r4b4n" loading="lazy" decoding="async"></div><div class="slide photo"><img src="img/r4b4n/r4b4n-03.jpg" alt="Zdjęcie z występu r4b4n" loading="lazy" decoding="async"></div><div class="slide photo"><img src="img/r4b4n/r4b4n-04.jpg" alt="Zdjęcie z występu r4b4n" loading="lazy" decoding="async"></div><div class="slide photo"><img src="img/r4b4n/r4b4n-05.jpg" alt="Zdjęcie z występu r4b4n" loading="lazy" decoding="async"></div><div class="slide photo"><img src="img/r4b4n/r4b4n-06.jpg" alt="Zdjęcie z występu r4b4n" loading="lazy" decoding="async"></div><div class="slide photo"><img src="img/r4b4n/r4b4n-07.jpg" alt="Zdjęcie z występu r4b4n" loading="lazy" decoding="async"></div><div class="slide photo"><img src="img/r4b4n/r4b4n-08.jpg" alt="Zdjęcie z występu r4b4n" loading="lazy" decoding="async"></div></div>
@@ -143,4 +149,21 @@
 </section>
 <footer><span class="d" style="font-size:12px">Przystanek Duży Pokój</span><a href="#prywatnosc" style="color:inherit">Polityka prywatności</a><span>© 2026</span></footer>
 </div>
-<script src="js/main.js?v=21"></script></body></html>
+<div class="evm" id="evm" hidden role="dialog" aria-modal="true" aria-labelledby="evm-title">
+ <div class="evm-box">
+  <button class="evm-x" id="evm-x" type="button" aria-label="Zamknij">✕</button>
+  <div class="evm-poster"><img id="evm-img" alt="" hidden><div class="evm-ph" id="evm-ph"><img src="img/r4b4n-logo.png" alt=""><span>Plakat wkrótce</span></div></div>
+  <div class="evm-info">
+   <p class="evm-date" id="evm-date"></p>
+   <h2 id="evm-title"></h2>
+   <dl class="evm-facts" id="evm-facts"></dl>
+   <p class="evm-desc" id="evm-desc"></p>
+   <div class="evm-links">
+    <a class="btn" id="evm-post" href="#" target="_blank" rel="noopener" hidden>Zobacz post ↗</a>
+    <a class="btn" href="https://www.instagram.com/_r4b4n_/" target="_blank" rel="noopener">Instagram r4b4n ↗</a>
+   </div>
+   <p class="evm-where">Przystanek Duży Pokój · Rondo Kaponiera, Poznań · <a href="https://www.google.com/maps/search/?api=1&amp;query=Przystanek+Du%C5%BCy+Pok%C3%B3j+Poznań" target="_blank" rel="noopener">trasa ↗</a></p>
+  </div>
+ </div>
+</div>
+<script src="js/main.js?v=22"></script></body></html>

@@ -68,6 +68,12 @@ Szczegóły: {{details}}
 ```
 W Email Services warto podłączyć skrzynkę sali (Gmail), żeby maile wychodziły z niej.
 
+## Wydarzenia r4b4n (okno z plakatem)
+
+Kliknięcie wydarzenia w kalendarzu r4b4n otwiera okno: plakat po lewej, po prawej data, nazwa, godziny, line-up, wejście, opis, przycisk do posta i do Instagrama r4b4n.
+Wymagany skrypt: `r4b4n-events-v2.sql` (kolumny ze szczegółami, edycja, folder `posters` na plakaty).
+Administrator (zalogowany w Rezerwacjach) w zakładce r4b4n: „Dodaj” nowe wydarzenie, albo wybierz wydarzenie w kalendarzu → „Edytuj wybrane” → „Zapisz zmiany”. Plakat wgrywa się z pliku i jest automatycznie zmniejszany.
+
 ## Wspólna baza rezerwacji (Supabase)
 
 Dzięki niej zajęte terminy widzą wszyscy odwiedzający, a Ty możesz usuwać rezerwacje. Bez tej konfiguracji strona działa, ale rezerwacje zapisują się tylko w przeglądarce danej osoby.

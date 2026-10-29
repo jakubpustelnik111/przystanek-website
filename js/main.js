@@ -15,11 +15,14 @@ function initGallery(root){
  dots.children[0].classList.add("on");
 }
 document.querySelectorAll(".gal").forEach(initGallery);
-// kalendarz wydarzeń r4b4n: daty zapisane w bazie (tabela r4b4n_events), administrator dodaje i usuwa je pod kalendarzem
+// kalendarz wydarzeń r4b4n: daty zapisane w bazie (tabela r4b4n_events), administrator dodaje, edytuje i usuwa je pod kalendarzem
+// Kliknięcie wydarzenia otwiera okno z plakatem i informacjami.
 // Zapasowa lista, używana gdy baza jest niedostępna: "RRRR-MM-DD":"Nazwa"
 const EVENTS={"2026-11-14":"2Faces first edition"};
-let EV={...EVENTS},EVID={};
+const IG_R4="https://www.instagram.com/_r4b4n_/";
+let EV={...EVENTS},EVID={},EVD={};
 const MNE=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
+const DNE=["niedziela","poniedziałek","wtorek","środa","czwartek","piątek","sobota"];
 const pad=n=>String(n).padStart(2,"0"),today=new Date();
 const todayK=today.getFullYear()+"-"+pad(today.getMonth()+1)+"-"+pad(today.getDate());
 let ey=today.getFullYear(),em=today.getMonth(),picked=null;
@@ -34,18 +37,41 @@ function drawE(){
  for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
  for(let d=1;d<=n;d++){const k=ey+"-"+pad(em+1)+"-"+pad(d);
   if(EV[k]){const b=document.createElement("button");b.textContent=d;b.className="ev"+(k===picked?" sel":"");b.title=EV[k];
-   b.onclick=()=>{picked=k;drawE()};cal.appendChild(b)}
+   b.onclick=()=>{picked=k;drawE();openEvent(k)};cal.appendChild(b)}
   else{const c=document.createElement("div");c.textContent=d;c.className="plain";cal.appendChild(c)}}
- document.getElementById("einfo").textContent=picked&&EV[picked]?fmt(picked)+" · "+EV[picked]:"Brak zaplanowanych wydarzeń.";
+ const info=document.getElementById("einfo");info.innerHTML="";
+ if(picked&&EV[picked]){info.append(fmt(picked)+" · "+EV[picked]+" ");
+  const more=document.createElement("button");more.type="button";more.className="emore";more.textContent="Szczegóły ↗";more.onclick=()=>openEvent(picked);info.append(more)}
+ else info.textContent="Brak zaplanowanych wydarzeń.";
  let isAdm=false;try{isAdm=!!adminTok&&DB_ON}catch(e){}
  document.getElementById("eadm").hidden=!isAdm;
  document.getElementById("edel").hidden=!(isAdm&&picked&&EVID[picked]);
+ document.getElementById("eedit").hidden=!(isAdm&&picked&&EVID[picked]);
 }
 document.getElementById("eprev").onclick=()=>{em--;if(em<0){em=11;ey--}drawE()};
 document.getElementById("enext").onclick=()=>{em++;if(em>11){em=0;ey++}drawE()};
+// okno wydarzenia (pop-up)
+const evm=document.getElementById("evm");let evmBack=null;
+function openEvent(k){const r=EVD[k]||{event_date:k,title:EV[k]};if(!EV[k])return;
+ const dt=new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8,10));
+ document.getElementById("evm-date").textContent=DNE[dt.getDay()]+", "+fmt(k);
+ document.getElementById("evm-title").textContent=r.title;
+ const img=document.getElementById("evm-img"),ph=document.getElementById("evm-ph");
+ if(r.poster_url){img.src=r.poster_url;img.alt="Plakat: "+r.title;img.hidden=false;ph.hidden=true}else{img.removeAttribute("src");img.hidden=true;ph.hidden=false}
+ const dl=document.getElementById("evm-facts");dl.innerHTML="";
+ [["Godziny",r.time_text],["Line-up",r.lineup],["Wejście",r.entry]].forEach(([a,b])=>{if(!b)return;
+  const t=document.createElement("dt");t.textContent=a;const d=document.createElement("dd");d.textContent=b;dl.append(t,d)});
+ const ds=document.getElementById("evm-desc");ds.textContent=r.description||"";ds.hidden=!r.description;
+ if(!dl.children.length&&!r.description){ds.textContent="Szczegóły wkrótce. Śledź nas na Instagramie.";ds.hidden=false}
+ const post=document.getElementById("evm-post");if(r.post_url){post.href=r.post_url;post.hidden=false}else post.hidden=true;
+ evmBack=document.activeElement;evm.hidden=false;document.body.classList.add("modal-on");document.getElementById("evm-x").focus()}
+function closeEvent(){evm.hidden=true;document.body.classList.remove("modal-on");if(evmBack&&evmBack.focus)evmBack.focus()}
+document.getElementById("evm-x").onclick=closeEvent;
+evm.addEventListener("click",e=>{if(e.target===evm)closeEvent()});
+addEventListener("keydown",e=>{if(e.key==="Escape"&&!evm.hidden)closeEvent()});
 async function loadEvents(keep){
- if(DB_ON){try{const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events?select=id,event_date,title&order=event_date.asc",{headers:HDR});
-  if(x.ok){const rows=await x.json();EV={};EVID={};rows.forEach(r=>{const k=String(r.event_date).slice(0,10);EV[k]=r.title;EVID[k]=r.id})}}catch(e){console.error("r4b4n_events:",e)}}
+ if(DB_ON){try{const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events?select=*&order=event_date.asc",{headers:HDR});
+  if(x.ok){const rows=await x.json();EV={};EVID={};EVD={};rows.forEach(r=>{const k=String(r.event_date).slice(0,10);EV[k]=r.title;EVID[k]=r.id;EVD[k]=r})}}catch(e){console.error("r4b4n_events:",e)}}
  if(!keep||!EV[picked])pickFirst();
  drawE();
  // wydarzenia r4b4n blokują też kalendarz rezerwacji
@@ -188,23 +214,48 @@ $("send").onclick=async()=>{const g=id=>$(id).value.trim(),msg=$("msg");
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadBusy()});
 showSel();draw();
 loadBusy();
-// r4b4n: dodawanie i usuwanie wydarzeń przez administratora
+// r4b4n: dodawanie, edycja i usuwanie wydarzeń przez administratora (z plakatem w Supabase Storage)
+let editId=null;
+const EF={date:"edate",title:"etitle",time_text:"etime",lineup:"elineup",entry:"eentry",description:"edesc",post_url:"epost"};
+function resetEventForm(){editId=null;Object.values(EF).forEach(i=>document.getElementById(i).value="");document.getElementById("eposter").value="";
+ document.getElementById("eadd").textContent="Dodaj ↗";document.getElementById("ecancel").hidden=true;document.getElementById("eform-h").textContent="Dodaj wydarzenie (panel administratora)"}
+document.getElementById("eedit").onclick=()=>{const r=EVD[picked];if(!r)return;editId=r.id;
+ Object.entries(EF).forEach(([k,i])=>document.getElementById(i).value=(k==="date"?r.event_date:r[k])||"");
+ document.getElementById("eadd").textContent="Zapisz zmiany ↗";document.getElementById("ecancel").hidden=false;
+ document.getElementById("eform-h").textContent="Edytujesz: "+fmt(picked)+" · "+r.title;document.getElementById("etitle").focus()};
+document.getElementById("ecancel").onclick=()=>{resetEventForm();document.getElementById("emsg").textContent=""};
+// zmniejsza plakat do maks. 1400 px (JPEG), żeby szybko ładował się na telefonach
+function shrink(file){return new Promise((ok,no)=>{const u=URL.createObjectURL(file),im=new Image();
+ im.onload=()=>{const s=Math.min(1,1400/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);
+  c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?ok(b):no(new Error("plakat")),"image/jpeg",.85)};
+ im.onerror=()=>no(new Error("Nie można odczytać pliku plakatu"));im.src=u})}
+async function uploadPoster(file,date){
+ const blob=await shrink(file),path=date+"-"+Date.now()+".jpg";
+ const x=await fetch(SUPABASE_URL+"/storage/v1/object/posters/"+path,{method:"POST",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+adminTok,"Content-Type":"image/jpeg"},body:blob});
+ if(!x.ok)throw new Error("plakat: HTTP "+x.status+" "+(await x.text()).slice(0,120));
+ return SUPABASE_URL+"/storage/v1/object/public/posters/"+path}
 document.getElementById("eadd").onclick=async()=>{
- const d=document.getElementById("edate").value,t=document.getElementById("etitle").value.trim(),m=document.getElementById("emsg");
+ const v=i=>document.getElementById(i).value.trim(),m=document.getElementById("emsg"),btn=document.getElementById("eadd");
+ const d=v("edate"),t=v("etitle");
  if(!d||!t){m.textContent="Podaj datę i nazwę wydarzenia.";return}
- try{const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events",{method:"POST",headers:{...AH(),"Prefer":"return=minimal"},body:JSON.stringify({event_date:d,title:t})});
+ const post=v("epost");if(post&&!/^https?:\/\//.test(post)){m.textContent="Link do posta musi zaczynać się od https://";return}
+ const body={event_date:d,title:t,time_text:v("etime")||null,lineup:v("elineup")||null,entry:v("eentry")||null,description:v("edesc")||null,post_url:post||null};
+ btn.disabled=true;m.textContent="Zapisywanie…";
+ try{const f=document.getElementById("eposter").files[0];if(f){m.textContent="Wysyłanie plakatu…";body.poster_url=await uploadPoster(f,d)}
+  const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events"+(editId?"?id=eq."+editId:""),{method:editId?"PATCH":"POST",headers:{...AH(),"Prefer":"return=minimal"},body:JSON.stringify(body)});
   if(x.status===401||x.status===403){logoutAdmin();m.textContent="Sesja wygasła. Zaloguj się ponownie w Rezerwacjach.";drawE();return}
   if(x.status===409){m.textContent="Na ten dzień jest już wydarzenie.";return}
-  if(!x.ok)throw new Error("HTTP "+x.status);
-  m.textContent="Dodano.";document.getElementById("etitle").value="";picked=d;ey=+d.slice(0,4);em=+d.slice(5,7)-1;await loadEvents(true)}
- catch(e){m.textContent="Nie udało się dodać wydarzenia ("+e.message+")."}};
+  if(!x.ok)throw new Error("HTTP "+x.status+" "+(await x.text()).slice(0,120));
+  m.textContent=editId?"Zapisano zmiany.":"Dodano.";resetEventForm();picked=d;ey=+d.slice(0,4);em=+d.slice(5,7)-1;await loadEvents(true)}
+ catch(e){m.textContent="Nie udało się zapisać wydarzenia ("+e.message+")."}
+ finally{btn.disabled=false}};
 document.getElementById("edel").onclick=async()=>{
  const m=document.getElementById("emsg");if(!picked||!EVID[picked])return;
  if(!confirm("Usunąć wydarzenie "+fmt(picked)+" ("+EV[picked]+")?"))return;
  try{const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events?id=eq."+EVID[picked],{method:"DELETE",headers:{...AH(),"Prefer":"return=minimal"}});
   if(x.status===401||x.status===403){logoutAdmin();drawE();return}
   if(!x.ok)throw new Error("HTTP "+x.status);
-  m.textContent="Usunięto.";await loadEvents(false)}
+  m.textContent="Usunięto.";resetEventForm();await loadEvents(false)}
  catch(e){m.textContent="Nie udało się usunąć ("+e.message+")."}};
 loadEvents();
 
