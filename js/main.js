@@ -18,10 +18,13 @@ document.querySelectorAll(".gal").forEach(initGallery);
 // kalendarz wydarzeń r4b4n: daty zapisane w bazie (tabela r4b4n_events), administrator dodaje, edytuje i usuwa je pod kalendarzem
 // Kliknięcie wydarzenia otwiera okno z plakatem i informacjami.
 // Zapasowa lista, używana gdy baza jest niedostępna: "RRRR-MM-DD":"Nazwa"
-const EVENTS={"2026-11-14":"2Faces vol. 1"};
+const EVENTS={"2026-11-01":"Halloween Afterparty","2026-11-14":"2Faces vol. 1"};
 const IG_R4="https://www.instagram.com/_r4b4n_/";
 // Szczegóły wydarzeń zapisane w kodzie (uzupełniają dane z bazy; pola wpisane w panelu mają pierwszeństwo)
 const EVENT_INFO={
+ "2026-11-01":{title:"Halloween Afterparty",post_url:"https://www.instagram.com/p/DeZrSw3gl9A/",poster_url:"img/events/halloween-2026.jpg",time_text:"19:00 – late",
+  lineup:"Grajek, Pusty + open decks",entry:"19:00–21:00: 15 zł\nod 21:00: 20 zł",
+  description:"Halloweenowe afterparty powered by r4b4n w Przystanku Duży Pokój. Gramy my, czyli Grajek i Pusty, a także wybrane przez nas osoby w ramach open decks."},
  "2026-11-14":{title:"2Faces vol. 1",post_url:"https://www.instagram.com/p/Dew3KNdiMfJ/",poster_url:"img/events/2faces-vol1.jpg",time_text:"20:00–02:00",
   lineup:"Stage 1 · od 20:00: ???, Frano, Grajek\nStage 2 · od 23:00: Kubaswat, Pusty, Rekrut",entry:"20/30 zł",
   description:"Pierwsza edycja cyklu 2FACES: najpierw luźniejszy 1st Face nastawiony na zabawę, potem 2nd Face, w którym jako selektorzy i diggerzy pokazujemy Wam coś nowego. Wpadaj!"}};
@@ -79,7 +82,9 @@ evm.addEventListener("click",e=>{if(e.target===evm)closeEvent()});
 addEventListener("keydown",e=>{if(e.key==="Escape"&&!evm.hidden)closeEvent()});
 async function loadEvents(keep){
  if(DB_ON){try{const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events?select=*&order=event_date.asc",{headers:HDR});
-  if(x.ok){const rows=await x.json();EV={};EVID={};EVD={};rows.forEach(r=>{const k=String(r.event_date).slice(0,10);EV[k]=(EVENT_INFO[k]&&EVENT_INFO[k].title)||r.title;EVID[k]=r.id;EVD[k]=r})}}catch(e){console.error("r4b4n_events:",e)}}
+  if(x.ok){const rows=await x.json();EV={};EVID={};EVD={};rows.forEach(r=>{const k=String(r.event_date).slice(0,10);EV[k]=(EVENT_INFO[k]&&EVENT_INFO[k].title)||r.title;EVID[k]=r.id;EVD[k]=r});
+   // wydarzenia opisane w kodzie (EVENT_INFO) są w kalendarzu nawet bez wpisu w bazie
+   Object.entries(EVENT_INFO).forEach(([k,v])=>{if(!EV[k]&&v.title)EV[k]=v.title})}}catch(e){console.error("r4b4n_events:",e)}}
  if(!keep||!EV[picked])pickFirst();
  drawE();
  // wydarzenia r4b4n blokują też kalendarz rezerwacji
