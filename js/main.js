@@ -18,12 +18,12 @@ document.querySelectorAll(".gal").forEach(initGallery);
 // kalendarz wydarzeń r4b4n: daty zapisane w bazie (tabela r4b4n_events), administrator dodaje, edytuje i usuwa je pod kalendarzem
 // Kliknięcie wydarzenia otwiera okno z plakatem i informacjami.
 // Zapasowa lista, używana gdy baza jest niedostępna: "RRRR-MM-DD":"Nazwa"
-const EVENTS={"2026-11-14":"2Faces first edition"};
+const EVENTS={"2026-11-14":"2Faces vol. 1"};
 const IG_R4="https://www.instagram.com/_r4b4n_/";
 // Szczegóły wydarzeń zapisane w kodzie (uzupełniają dane z bazy; pola wpisane w panelu mają pierwszeństwo)
 const EVENT_INFO={
- "2026-11-14":{poster_url:"img/events/2faces-vol1.jpg",time_text:"20:00–02:00",
-  lineup:"Stage 1 · od 20:00: ???, Frano, Grajek\nStage 2 · od 23:00: Kubaswat, Pusty, Rekrut",entry:"20 / 30 zł",
+ "2026-11-14":{title:"2Faces vol. 1",poster_url:"img/events/2faces-vol1.jpg",time_text:"20:00–02:00",
+  lineup:"Stage 1 · od 20:00: ???, Frano, Grajek\nStage 2 · od 23:00: Kubaswat, Pusty, Rekrut",entry:"20/30",
   description:"Pierwsza edycja cyklu 2FACES: najpierw luźniejszy 1st Face nastawiony na zabawę, potem 2nd Face, w którym jako selektorzy i diggerzy pokazujemy Wam coś nowego. Wpadaj!"}};
 let EV={...EVENTS},EVID={},EVD={};
 const MNE=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
@@ -66,7 +66,7 @@ function openEvent(k){if(!EV[k])return;
  const img=document.getElementById("evm-img"),ph=document.getElementById("evm-ph");
  if(r.poster_url){img.src=r.poster_url;img.alt="Plakat: "+r.title;img.hidden=false;ph.hidden=true}else{img.removeAttribute("src");img.hidden=true;ph.hidden=false}
  const dl=document.getElementById("evm-facts");dl.innerHTML="";
- [["Godziny",r.time_text],["Line-up",r.lineup],["Wejście",r.entry]].forEach(([a,b])=>{if(!b)return;
+ [["Godziny",r.time_text],["Line-up",r.lineup],["Tax",r.entry]].forEach(([a,b])=>{if(!b)return;
   const t=document.createElement("dt");t.textContent=a;const d=document.createElement("dd");d.textContent=b;dl.append(t,d)});
  const ds=document.getElementById("evm-desc");ds.textContent=r.description||"";ds.hidden=!r.description;
  if(!dl.children.length&&!r.description){ds.textContent="Szczegóły wkrótce. Śledź nas na Instagramie.";ds.hidden=false}
@@ -78,7 +78,7 @@ evm.addEventListener("click",e=>{if(e.target===evm)closeEvent()});
 addEventListener("keydown",e=>{if(e.key==="Escape"&&!evm.hidden)closeEvent()});
 async function loadEvents(keep){
  if(DB_ON){try{const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events?select=*&order=event_date.asc",{headers:HDR});
-  if(x.ok){const rows=await x.json();EV={};EVID={};EVD={};rows.forEach(r=>{const k=String(r.event_date).slice(0,10);EV[k]=r.title;EVID[k]=r.id;EVD[k]=r})}}catch(e){console.error("r4b4n_events:",e)}}
+  if(x.ok){const rows=await x.json();EV={};EVID={};EVD={};rows.forEach(r=>{const k=String(r.event_date).slice(0,10);EV[k]=(EVENT_INFO[k]&&EVENT_INFO[k].title)||r.title;EVID[k]=r.id;EVD[k]=r})}}catch(e){console.error("r4b4n_events:",e)}}
  if(!keep||!EV[picked])pickFirst();
  drawE();
  // wydarzenia r4b4n blokują też kalendarz rezerwacji
