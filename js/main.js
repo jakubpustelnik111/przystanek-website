@@ -25,7 +25,7 @@ const EVENT_INFO={
  "2026-11-01":{title:"Halloween Afterparty",post_url:"https://www.instagram.com/p/DeZrSw3gl9A/",poster_url:"img/events/halloween-2026.jpg",time_text:"19:00 – late",
   lineup:"Grajek, Pusty + open decks",entry:"19:00–21:00: 15 zł\nod 21:00: 20 zł",
   description:"Halloweenowe afterparty powered by r4b4n w Przystanku Duży Pokój. Gramy my, czyli Grajek i Pusty, a także wybrane przez nas osoby w ramach open decks."},
- "2026-11-14":{title:"2Faces vol. 1",post_url:"https://www.instagram.com/p/Dew3KNdiMfJ/",poster_url:"img/events/2faces-vol1.jpg",doors:"19:00",time_text:"19:00–02:00",
+ "2026-11-14":{title:"2Faces vol. 1",post_url:"https://www.instagram.com/p/Dew3KNdiMfJ/",poster_url:"img/events/2faces-vol1.jpg",doors:"19:45",time_text:"20:00–02:00",
   lineup:"Stage 1 · od 20:00: ???, Frano, Grajek\nStage 2 · od 23:00: Kubaswat, Pusty, Rekrut",entry:"20/30 zł",
   description:"Pierwsza edycja cyklu 2FACES: najpierw luźniejszy 1st Face nastawiony na zabawę, potem 2nd Face, w którym jako selektorzy i diggerzy pokazujemy Wam coś nowego. Wpadaj!"}};
 let EV={...EVENTS},EVID={},EVD={};
