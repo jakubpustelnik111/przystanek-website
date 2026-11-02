@@ -263,7 +263,7 @@ body.modal-on{overflow:hidden}
 /* strona główna: blok rezerwacji obok opisu sali */
 .btn-main{background:linear-gradient(90deg,var(--pink),var(--acc));color:#111;border-color:var(--line);text-decoration:none;display:inline-block}
 .btn-main:hover{filter:brightness(1.08)}
-.book{display:flex;align-items:center}
+.book{display:block}
 .book-tag{font:800 11px Unbounded,sans-serif;text-transform:uppercase;letter-spacing:.08em;margin:0 0 10px;opacity:.7}
 .book-h{font-size:clamp(22px,2.8vw,34px);line-height:1.1;margin-bottom:12px}
 .book-txt{margin:0 0 18px;max-width:420px}
