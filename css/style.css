@@ -270,3 +270,4 @@ body.modal-on{overflow:hidden}
 .book-tel{font-size:12px;margin:12px 0 0;opacity:.8}.book-tel a{color:inherit}
 @media(max-width:600px){.book .btn-main{display:block;text-align:center}}
 .sala .edit{min-height:0}
+#start-wydarzenia .edit{min-height:60px}
