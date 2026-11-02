@@ -251,3 +251,11 @@ body.modal-on{overflow:hidden}
 [hidden]{display:none!important}
 
 .evm-facts dd{white-space:pre-line}
+
+/* pułapka na boty (pole niewidoczne dla ludzi) */
+.hp{position:absolute!important;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden}
+/* zajęte dni: wyraźne, nie wyblakłe jak dni miniona */
+.cal button.busy,.cal button.busy:disabled{opacity:1;background:repeating-linear-gradient(135deg,var(--acc) 0 6px,#e8a63a 6px 12px);color:#111;font-weight:800}
+/* menu na telefonie: większe litery */
+@media(max-width:600px){nav a{font-size:12px}}
+@media(max-width:360px){nav a{font-size:10.5px}}

@@ -71,8 +71,14 @@ W Email Services warto podłączyć skrzynkę sali (Gmail), żeby maile wychodzi
 ## Wydarzenia r4b4n (okno z plakatem)
 
 Kliknięcie wydarzenia w kalendarzu r4b4n otwiera okno: plakat po lewej, po prawej data, nazwa, godziny, line-up, wejście, opis, przycisk do posta i do Instagrama r4b4n.
-Wymagany skrypt: `r4b4n-events-v2.sql` (kolumny ze szczegółami, edycja, folder `posters` na plakaty).
+Wymagany skrypt: `aktualizacja-2026-11.sql` (zawiera r4b4n-events-v2.sql, przenosi Halloween i 2Faces do bazy, dodaje ochronę antyspamową). Wszystkie dane wydarzeń są w bazie, kod strony ich nie przechowuje.
 Administrator (zalogowany w Rezerwacjach) w zakładce r4b4n: „Dodaj” nowe wydarzenie, albo wybierz wydarzenie w kalendarzu → „Edytuj wybrane” → „Zapisz zmiany”. Plakat wgrywa się z pliku i jest automatycznie zmniejszany.
+
+## Ochrona przed spamem
+
+- Formularz: niewidoczne pole-pułapka i minimalny czas wypełnienia (boty dostają fałszywe „Dziękujemy”).
+- Baza (`reservations_guard` w `aktualizacja-2026-11.sql`): poprawny e-mail i telefon, brak próśb na zajęte dni i dni r4b4n, bez duplikatów, maks. 3 prośby z jednego e-maila na dobę, maks. 10 próśb od wszystkich w 10 minut, maks. 30 oczekujących naraz.
+- EmailJS (Account → Security): ustaw dozwoloną domenę `jakubpustelnik111.github.io` i limit częstotliwości wysyłek.
 
 ## Wspólna baza rezerwacji (Supabase)
 
