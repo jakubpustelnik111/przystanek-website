@@ -293,3 +293,11 @@ body.modal-on{overflow:hidden}
 .vempty{margin:0}.vempty a{color:inherit}
 .vform{margin-top:18px;max-width:560px}.vform input,.vform textarea{margin-top:8px}
 @media(max-width:600px){.vlist{grid-template-columns:1fr}.vcard{grid-template-columns:96px 1fr}}
+
+/* pasek administratora: przełącznik podglądu jako gość */
+.abar{position:fixed;right:16px;bottom:16px;z-index:40;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 14px;background:var(--bg);color:var(--ink);border:1px solid var(--line);box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.abar::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--pink),var(--acc))}
+.abar-t{font:800 10px Unbounded,sans-serif;text-transform:uppercase}
+.abar .btn{padding:8px 12px}
+body.preview .abar::before{background:#1fa35c}
+@media(max-width:600px){.abar{left:12px;right:12px;bottom:12px;justify-content:space-between}}

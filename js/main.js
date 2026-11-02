@@ -41,7 +41,7 @@ function drawE(){
  if(picked&&EV[picked]){info.append(fmt(picked)+" · "+EV[picked]+" ");
   const more=document.createElement("button");more.type="button";more.className="emore";more.textContent="Szczegóły ↗";more.onclick=()=>openEvent(picked);info.append(more)}
  else info.textContent="Brak zaplanowanych wydarzeń.";
- let isAdm=false;try{isAdm=!!adminTok&&DB_ON}catch(e){}
+ const isAdm=isAdmin();
  document.getElementById("eadm").hidden=!isAdm;
  document.getElementById("edel").hidden=!(isAdm&&picked&&EVID[picked]);
  document.getElementById("eedit").hidden=!(isAdm&&picked&&EVID[picked]);
@@ -149,7 +149,7 @@ async function editDesc(r){
  if(await adminCall("id=eq."+r.id,"PATCH",{is_public:!!t,public_desc:t||null}))await loadBusy()}
 function mkBtn(txt,fn){const b=document.createElement("button");b.className="btn";b.textContent=txt;b.style.padding="6px 10px";b.onclick=fn;return b}
 function list(){const l=$("list");l.innerHTML="";
- const adm=adminTok&&adminRows;
+ const adm=isAdmin()&&adminRows;
  $("admlink").hidden=!!adm;$("admout").hidden=!adm;
  $("adm").hidden=!!adm||$("adm").dataset.open!=="1";
  $("list-h").textContent=adm?"Rezerwacje (panel administratora)":"Zajęte terminy";
@@ -307,7 +307,7 @@ let VROWS=[],vEditId=null;
 const VF={date:"vdate",title:"vtitle",time_text:"vtime",description:"vdesc",fb_url:"vfb"};
 function drawV(){
  const box=$("vlist");box.innerHTML="";
- let isAdm=false;try{isAdm=!!adminTok}catch(e){}
+ const isAdm=isAdmin();
  const rows=VROWS.filter(r=>isAdm||String(r.event_date)>=todayKey);
  if(!rows.length){const p=document.createElement("p");p.className="vempty";p.append("Brak zaplanowanych wydarzeń. Zajrzyj na ");
   const a=document.createElement("a");a.href=FB_PAGE;a.target="_blank";a.rel="noopener";a.textContent="nasz Facebook ↗";p.append(a);box.append(p)}
@@ -327,7 +327,7 @@ function drawV(){
    const e=document.createElement("button");e.className="btn";e.textContent="Edytuj";e.onclick=()=>editVenue(r);
    const x=document.createElement("button");x.className="btn";x.textContent="Usuń";x.onclick=()=>delVenue(r);act.append(e,x);body.append(act)}
   c.append(ph,body);box.append(c)});
- $("vadm").hidden=!isAdm}
+ $("vadm").hidden=!isAdm;updAdminBar()}
 async function loadVenue(){
  try{const x=await fetch(SUPABASE_URL+"/rest/v1/venue_events?select=*&order=event_date.asc",{headers:HDR});
   if(x.ok){VROWS=await x.json();VEV={};VROWS.forEach(r=>{VEV[String(r.event_date).slice(0,10)]=r.title})}}
@@ -380,3 +380,18 @@ document.addEventListener("visibilitychange",async()=>{if(document.hidden)return
  if(rt&&adminTok){try{const exp=JSON.parse(atob(adminTok.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).exp*1000;if(exp-Date.now()<300000){await refreshAdmin();await loadAdmin();list();drawE();drawV()}}catch(e){}}});
 (async()=>{if(await refreshAdmin()){await loadAdmin();list();drawE();drawV()}})();
 loadVenue();
+
+// ===== Podgląd jako gość =====
+// Zalogowany administrator może ukryć wszystkie elementy panelu i zobaczyć stronę tak jak odwiedzający (bez wylogowania).
+let guestPreview=false;try{guestPreview=sessionStorage.getItem("pdp_preview")==="1"}catch(e){}
+function isAdmin(){try{return !!adminTok&&!guestPreview}catch(e){return false}}
+const abar=document.createElement("div");abar.className="abar";abar.hidden=true;
+abar.innerHTML='<span class="abar-t"></span><button type="button" class="btn"></button>';
+document.body.appendChild(abar);
+function updAdminBar(){let on=false;try{on=!!adminTok}catch(e){}
+ abar.hidden=!on;document.body.classList.toggle("preview",on&&guestPreview);
+ abar.querySelector(".abar-t").textContent=guestPreview?"Podgląd jako gość":"Tryb administratora";
+ abar.querySelector("button").textContent=guestPreview?"Wróć do panelu":"Podgląd jako gość"}
+abar.querySelector("button").onclick=()=>{guestPreview=!guestPreview;try{sessionStorage.setItem("pdp_preview",guestPreview?"1":"0")}catch(e){}
+ list();drawE();drawV()};
+updAdminBar();
