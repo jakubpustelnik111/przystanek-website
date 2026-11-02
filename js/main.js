@@ -318,8 +318,7 @@ function drawV(){
   const c=document.createElement("article");c.className="vcard"+(k<todayKey?" past":"")+(r._r4?" r4":"");
   const ph=document.createElement("div");ph.className="vposter";
   if(r.poster_url){const im=document.createElement("img");im.src=r.poster_url;im.alt="Plakat: "+r.title;im.loading="lazy";ph.append(im)}
-  else{ph.classList.add("noimg");const s=document.createElement("span");s.textContent=+k.slice(8,10)+"."+k.slice(5,7);
-   const n=document.createElement("em");n.textContent=r.title;ph.append(s,n)}
+  else{ph.classList.add("noimg");const s=document.createElement("span");s.textContent=+k.slice(8,10)+"."+k.slice(5,7);ph.append(s)}
   const body=document.createElement("div");body.className="vbody";
   const dt=new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8,10));
   const d=document.createElement("p");d.className="vdate";d.textContent=DNE[dt.getDay()]+", "+fmt(k)+(r.time_text?" · "+r.time_text:"");
