@@ -308,3 +308,8 @@ body.preview .abar::before{background:#1fa35c}
 .vcard.r4 .vposter span{color:#a6e34a}
 .vtag{display:inline-block;margin:0;padding:2px 8px;font:800 10px Unbounded,sans-serif;text-transform:uppercase;background:linear-gradient(90deg,#1fa35c,#a6e34a);color:#111}
 .vcard.r4 .btn:hover{background:#a6e34a;color:#111}
+/* większy przycisk rezerwacji na stronie głównej */
+.book .btn-main{font-size:15px;padding:18px 28px;letter-spacing:.01em;box-shadow:4px 4px 0 var(--line);transition:transform .15s,box-shadow .15s}
+.book .btn-main:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--line);filter:none}
+.book .btn-main:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--line)}
+@media(min-width:761px){.book .btn-main{min-width:min(100%,360px);text-align:center;font-size:16px;padding:20px 32px}}
