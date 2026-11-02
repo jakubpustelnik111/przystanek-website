@@ -313,3 +313,7 @@ body.preview .abar::before{background:#1fa35c}
 .book .btn-main:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--line);filter:none}
 .book .btn-main:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--line)}
 @media(min-width:761px){.book .btn-main{min-width:min(100%,360px);text-align:center;font-size:16px;padding:20px 32px}}
+
+/* karta wydarzenia bez plakatu: data i nazwa */
+.vposter.noimg{flex-direction:column;gap:8px;padding:10px;text-align:center;background:linear-gradient(160deg,#111,#2a2a2a)}
+.vposter.noimg em{font:800 10px/1.25 Unbounded,sans-serif;font-style:normal;text-transform:uppercase;color:#eee;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}

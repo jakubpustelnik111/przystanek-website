@@ -318,7 +318,8 @@ function drawV(){
   const c=document.createElement("article");c.className="vcard"+(k<todayKey?" past":"")+(r._r4?" r4":"");
   const ph=document.createElement("div");ph.className="vposter";
   if(r.poster_url){const im=document.createElement("img");im.src=r.poster_url;im.alt="Plakat: "+r.title;im.loading="lazy";ph.append(im)}
-  else{const s=document.createElement("span");s.textContent=+k.slice(8,10)+"."+k.slice(5,7);ph.append(s)}
+  else{ph.classList.add("noimg");const s=document.createElement("span");s.textContent=+k.slice(8,10)+"."+k.slice(5,7);
+   const n=document.createElement("em");n.textContent=r.title;ph.append(s,n)}
   const body=document.createElement("div");body.className="vbody";
   const dt=new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8,10));
   const d=document.createElement("p");d.className="vdate";d.textContent=DNE[dt.getDay()]+", "+fmt(k)+(r.time_text?" · "+r.time_text:"");
@@ -330,7 +331,9 @@ function drawV(){
   if(r.fb_url){const a=document.createElement("a");a.className="btn";a.href=r.fb_url;a.target="_blank";a.rel="noopener";a.textContent="Wydarzenie na Facebooku ↗";body.append(a)}
   if(isAdm&&!r._r4){const act=document.createElement("p");act.className="vadm";
    const e=document.createElement("button");e.className="btn";e.textContent="Edytuj";e.onclick=()=>editVenue(r);
-   const x=document.createElement("button");x.className="btn";x.textContent="Usuń";x.onclick=()=>delVenue(r);act.append(e,x);body.append(act)}
+   const x=document.createElement("button");x.className="btn";x.textContent="Usuń";x.onclick=()=>delVenue(r);act.append(e,x);
+   if(r.poster_url){const z=document.createElement("button");z.className="btn";z.textContent="Usuń plakat";z.onclick=()=>delVenuePoster(r);act.append(z)}
+   body.append(act)}
   c.append(ph,body);box.append(c)});
  $("vadm").hidden=!isAdm;updAdminBar()}
 async function loadVenue(){
@@ -344,6 +347,13 @@ function editVenue(r){vEditId=r.id;Object.entries(VF).forEach(([k,i])=>$(i).valu
  $("vadd").textContent="Zapisz zmiany ↗";$("vcancel").hidden=false;$("vform-h").textContent="Edytujesz: "+fmt(String(r.event_date))+" · "+r.title;
  $("vadm").scrollIntoView({behavior:"smooth",block:"center"});$("vtitle").focus()}
 $("vcancel").onclick=()=>{resetVenueForm();$("vmsg").textContent=""};
+// usuwa plakat wydarzenia sali (zostaje data i nazwa); plik z folderu posters jest kasowany, jeśli tam leży
+async function delVenuePoster(r){if(!confirm("Usunąć plakat wydarzenia "+fmt(String(r.event_date))+" ("+r.title+")?"))return;
+ const x=await fetch(SUPABASE_URL+"/rest/v1/venue_events?id=eq."+r.id,{method:"PATCH",headers:{...AH(),"Prefer":"return=minimal"},body:JSON.stringify({poster_url:null})});
+ if(!x.ok){alert("Nie udało się usunąć plakatu (HTTP "+x.status+").");return}
+ const pre=SUPABASE_URL+"/storage/v1/object/public/posters/";
+ if(r.poster_url&&r.poster_url.startsWith(pre)){try{await fetch(SUPABASE_URL+"/storage/v1/object/posters/"+r.poster_url.slice(pre.length),{method:"DELETE",headers:{"apikey":SUPABASE_KEY,"Authorization":"Bearer "+adminTok}})}catch(e){}}
+ await loadVenue()}
 async function delVenue(r){if(!confirm("Usunąć wydarzenie "+fmt(String(r.event_date))+" ("+r.title+")?"))return;
  const x=await fetch(SUPABASE_URL+"/rest/v1/venue_events?id=eq."+r.id,{method:"DELETE",headers:{...AH(),"Prefer":"return=minimal"}});
  if(!x.ok){alert("Nie udało się usunąć (HTTP "+x.status+").");return}
