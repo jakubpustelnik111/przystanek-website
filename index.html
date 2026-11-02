@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Montserrat:wght@400;500;600&display=swap">
 <script>try{var t=localStorage.getItem("pdp_theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
-<link rel="stylesheet" href="css/style.css?v=27"></head><body>
+<link rel="stylesheet" href="css/style.css?v=28"></head><body>
 <div class="wrap">
 <header>
  <a class="brand" href="#start" style="text-decoration:none;color:inherit"><img class="logo" src="img/logo-t.png" alt="Logo Przystanek Duży Pokój"><b>Przystanek<br>Duży Pokój</b></a>
@@ -52,8 +52,17 @@
     <li><b>Turnieje darta</b><span>Tarcza już wisi – wystarczy zebrać ekipę.</span></li>
    </ul></div>
  </div>
- <div class="band"><h2 style="font-size:20px;margin-bottom:12px">O sali</h2><div class="edit">Przystanek Duży Pokój to klub towarzyski ukryty głęboko w przystanku Kaponiera w Poznaniu. Underground w sercu miasta: miejsce z klimatem, w którym spotykają się ludzie, muzyka i dobra zabawa. Goście oceniają je na 4,9/5 w Google.</div></div>
- <div class="band" id="start-wydarzenia"><h2 style="font-size:20px;margin-bottom:12px">Wydarzenia</h2><div class="edit"></div></div>
+ <div class="band sala"><h2 style="font-size:20px;margin-bottom:12px">O sali</h2><div class="edit">Przystanek Duży Pokój to klub towarzyski ukryty głęboko w przystanku Kaponiera w Poznaniu. Underground w sercu miasta: miejsce z klimatem, w którym spotykają się ludzie, muzyka i dobra zabawa. Goście oceniają je na 4,9/5 w Google.</div></div>
+ <div class="band" id="start-wydarzenia"><h2 style="font-size:20px;margin-bottom:14px">Wydarzenia</h2>
+  <div class="vlist" id="vlist"></div>
+  <div id="vadm" hidden class="vform"><label id="vform-h">Dodaj wydarzenie (panel administratora)</label>
+   <input id="vdate" type="date" aria-label="Data wydarzenia"><input id="vtitle" placeholder="Nazwa wydarzenia" maxlength="120">
+   <input id="vtime" placeholder="Godziny, np. 20:00–02:00" maxlength="80">
+   <textarea id="vdesc" rows="3" placeholder="Krótki opis" maxlength="1500"></textarea>
+   <input id="vfb" type="url" placeholder="Link do wydarzenia na Facebooku (https://…)">
+   <label for="vposter">Plakat (JPG/PNG, zostaw puste, żeby nie zmieniać)</label><input id="vposter" type="file" accept="image/*">
+   <p style="margin:10px 0 0;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="vadd">Dodaj wydarzenie ↗</button><button class="btn" id="vcancel" hidden>Anuluj</button></p><div class="msg" id="vmsg"></div></div>
+ </div>
  <div class="tag" id="kontakt">Kontakt</div>
  <div class="grid2">
   <div class="band"><h2 style="font-size:20px;margin-bottom:12px">Napisz lub zadzwoń</h2>
@@ -98,6 +107,7 @@
   <div id="adm" hidden style="max-width:360px">
    <label>E-mail administratora</label><input id="adm-mail" type="email" autocomplete="username">
    <label>Hasło</label><input id="adm-pass" type="password" autocomplete="current-password">
+   <label class="chk"><input type="checkbox" id="adm-remember" checked> Zapamiętaj ten komputer (nie zaznaczaj na cudzym urządzeniu)</label>
    <p><button class="btn" id="adm-login">Zaloguj ↗</button></p><div class="msg" id="adm-msg"></div>
   </div></div>
 </section>
@@ -198,4 +208,4 @@
   </div>
  </div>
 </div>
-<script src="js/main.js?v=30"></script></body></html>
+<script src="js/main.js?v=31"></script></body></html>

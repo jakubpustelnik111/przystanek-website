@@ -90,6 +90,7 @@ const EMAILJS={service:"service_o0s3pj2",template:"template_n1rdne8",key:"N_8Z4b
 const MN=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
 const iso=(a,b,c)=>a+"-"+String(b+1).padStart(2,"0")+"-"+String(c).padStart(2,"0");
 const fmtD=k=>+String(k).slice(8,10)+"."+String(k).slice(5,7)+"."+String(k).slice(0,4);
+let VEV={};          // wydarzenia w sali: data -> nazwa (zajmują termin)
 let busy=new Map();   // data -> publiczny opis (pusty = wydarzenie prywatne)
 let now=new Date(),y=now.getFullYear(),m=now.getMonth();
 const todayKey=iso(now.getFullYear(),now.getMonth(),now.getDate());
@@ -102,7 +103,7 @@ async function loadBusy(){
  try{const x=await fetch(SUPABASE_URL+"/rest/v1/rpc/busy_dates",{method:"POST",headers:HDR,body:"{}"});
   if(!x.ok)throw new Error("HTTP "+x.status+" "+(await x.text()).slice(0,160));
   busy=new Map((await x.json()).map(r=>[String(r.event_date).slice(0,10),r.public_desc||""]));
-  if(sel&&(busy.has(sel)||EV[sel])){sel=null}}
+  if(sel&&(busy.has(sel)||EV[sel]||VEV[sel])){sel=null}}
  catch(e){console.error("busy_dates:",e);$("msg").textContent="Nie udało się pobrać zajętych terminów ("+e.message+"). Odśwież stronę."}
  await loadAdmin();showSel();draw();list()}
 function draw(){const cal=$("cal");cal.innerHTML="";
@@ -111,8 +112,8 @@ function draw(){const cal=$("cal");cal.innerHTML="";
  const off=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate();
  for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
  for(let d=1;d<=n;d++){const k=iso(y,m,d),b=document.createElement("button");b.textContent=d;
-  const isBusy=busy.has(k),isR4=!isBusy&&!!EV[k];
-  if(k<todayKey||isBusy||isR4)b.disabled=true;if(isBusy){b.classList.add("busy");b.title=busy.get(k)||"Zajęty"}
+  const isBusy=busy.has(k)||!!VEV[k],isR4=!isBusy&&!!EV[k];
+  if(k<todayKey||isBusy||isR4)b.disabled=true;if(isBusy){b.classList.add("busy");b.title=VEV[k]||busy.get(k)||"Zajęty"}
   if(isR4){b.classList.add("r4");b.title="r4b4n: "+EV[k]}
   if(k===todayKey)b.classList.add("today");if(k===sel)b.classList.add("sel");
   b.onclick=()=>{sel=k;showSel();draw()};cal.appendChild(b)}}
@@ -122,7 +123,7 @@ $("next").onclick=()=>{m++;if(m>11){m=0;y++}draw()};
 let adminTok=null;try{adminTok=sessionStorage.getItem("pdp_adm")}catch(e){}
 let adminRows=null;
 const AH=()=>({"apikey":SUPABASE_KEY,"Content-Type":"application/json","Authorization":"Bearer "+adminTok});
-function logoutAdmin(){adminTok=null;adminRows=null;try{sessionStorage.removeItem("pdp_adm")}catch(e){}list();drawE()}
+function logoutAdmin(){adminTok=null;adminRows=null;try{sessionStorage.removeItem("pdp_adm")}catch(e){}list();drawE();try{drawV()}catch(e){}}
 async function loadAdmin(){
  if(!adminTok){adminRows=null;return}
  try{const x=await fetch(SUPABASE_URL+"/rest/v1/reservations?select=id,event_date,title,email,phone,note,status,is_public,public_desc&order=event_date.asc",{headers:AH()});
@@ -167,13 +168,13 @@ function list(){const l=$("list");l.innerHTML="";
    if(r.status==="pending")a.append(mkBtn("Potwierdź",()=>confirmRes(r)));
    a.append(mkBtn("Opis",()=>editDesc(r)),mkBtn("Usuń",()=>removeRes(r)));
    d.append(t,a);l.appendChild(d)});return}
- const ds=[...new Set([...busy.keys(),...Object.keys(EV)])].filter(k=>k>=todayKey).sort();
+ const ds=[...new Set([...busy.keys(),...Object.keys(EV),...Object.keys(VEV)])].filter(k=>k>=todayKey).sort();
  if(!ds.length){l.textContent="Brak zajętych terminów.";return}
- ds.forEach(k=>{const d=document.createElement("div");const r4=!busy.has(k),desc=r4?"r4b4n: "+EV[k]:busy.get(k);
+ ds.forEach(k=>{const d=document.createElement("div");const r4=!busy.has(k)&&!VEV[k]&&!!EV[k],desc=VEV[k]?"Wydarzenie: "+VEV[k]:r4?"r4b4n: "+EV[k]:busy.get(k);
   const b=document.createElement("b");b.textContent=fmtD(k);d.append(b,document.createTextNode(" · "+(desc||"zajęty")));
   if(r4)d.className="r4";else if(desc)d.className="open";l.appendChild(d)})}
 $("admlink").onclick=e=>{e.preventDefault();const a=$("adm");a.dataset.open="1";a.hidden=false}
-$("admout").onclick=e=>{e.preventDefault();logoutAdmin()};
+$("admout").onclick=e=>{e.preventDefault();try{localStorage.removeItem("pdp_adm_rt")}catch(x){}clearTimeout(rtTimer);logoutAdmin()};
 $("adm-login").onclick=async()=>{
  const msg=$("adm-msg"),btn=$("adm-login");
  const email=$("adm-mail").value.trim(),pass=$("adm-pass").value;
@@ -181,9 +182,9 @@ $("adm-login").onclick=async()=>{
  btn.disabled=true;msg.textContent="Logowanie…";
  try{const x=await fetch(SUPABASE_URL+"/auth/v1/token?grant_type=password",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({email,password:pass})});
   if(!x.ok)throw new Error("login");
-  adminTok=(await x.json()).access_token;try{sessionStorage.setItem("pdp_adm",adminTok)}catch(e){}
+  const j=await x.json();adminTok=j.access_token;try{sessionStorage.setItem("pdp_adm",adminTok)}catch(e){}rememberAfterLogin(j);
   $("adm-pass").value="";msg.textContent="";
-  await loadAdmin();list();drawE()}
+  await loadAdmin();list();drawE();drawV()}
  catch(e){msg.textContent="Nie udało się zalogować. Sprawdź e-mail i hasło."}
  finally{btn.disabled=false}};
 $("f-open").onchange=()=>{$("f-pub-wrap").hidden=!$("f-open").checked};
@@ -202,7 +203,7 @@ $("send").onclick=async()=>{const g=id=>$(id).value.trim(),msg=$("msg");
  // pułapka na boty: niewidoczne pole wypełniają tylko automaty; ludzie potrzebują też kilku sekund na formularz
  if($("f-www").value||Date.now()-FORM_T0<4000){msg.textContent="Dziękujemy! Prośba o rezerwację została wysłana.";return}
  if(!sel){msg.textContent="Najpierw wybierz datę w kalendarzu.";return}
- if(EV[sel]||busy.has(sel)){msg.textContent="Ten termin jest zajęty. Wybierz inną datę.";sel=null;showSel();draw();return}
+ if(EV[sel]||busy.has(sel)||VEV[sel]){msg.textContent="Ten termin jest zajęty. Wybierz inną datę.";sel=null;showSel();draw();return}
  const r={date:sel,title:g("f-title"),mail:g("f-mail"),phone:g("f-phone"),details:g("f-note"),open:$("f-open").checked,pub:g("f-pub")};
  if(!r.title||!r.mail||!r.phone){msg.textContent="Uzupełnij tytuł wydarzenia, e-mail i numer telefonu.";return}
  if(!/^\S+@\S+\.\S+$/.test(r.mail)){msg.textContent="Sprawdź adres e-mail.";return}
@@ -298,3 +299,84 @@ loadEvents();
  if(window.matchMedia)matchMedia("(prefers-color-scheme:dark)").addEventListener?.("change",paint);
  paint();
 })();
+
+// ===== Wydarzenia w sali (sekcja "Wydarzenia" na stronie głównej; tabela venue_events) =====
+// Administrator dodaje je w panelu pod listą; daty wydarzeń są też zajęte w kalendarzu rezerwacji.
+const FB_PAGE="https://www.facebook.com/Bodycamfan";
+let VROWS=[],vEditId=null;
+const VF={date:"vdate",title:"vtitle",time_text:"vtime",description:"vdesc",fb_url:"vfb"};
+function drawV(){
+ const box=$("vlist");box.innerHTML="";
+ let isAdm=false;try{isAdm=!!adminTok}catch(e){}
+ const rows=VROWS.filter(r=>isAdm||String(r.event_date)>=todayKey);
+ if(!rows.length){const p=document.createElement("p");p.className="vempty";p.append("Brak zaplanowanych wydarzeń. Zajrzyj na ");
+  const a=document.createElement("a");a.href=FB_PAGE;a.target="_blank";a.rel="noopener";a.textContent="nasz Facebook ↗";p.append(a);box.append(p)}
+ rows.forEach(r=>{const k=String(r.event_date).slice(0,10);
+  const c=document.createElement("article");c.className="vcard"+(k<todayKey?" past":"");
+  const ph=document.createElement("div");ph.className="vposter";
+  if(r.poster_url){const im=document.createElement("img");im.src=r.poster_url;im.alt="Plakat: "+r.title;im.loading="lazy";ph.append(im)}
+  else{const s=document.createElement("span");s.textContent=+k.slice(8,10)+"."+k.slice(5,7);ph.append(s)}
+  const body=document.createElement("div");body.className="vbody";
+  const dt=new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8,10));
+  const d=document.createElement("p");d.className="vdate";d.textContent=DNE[dt.getDay()]+", "+fmt(k)+(r.time_text?" · "+r.time_text:"");
+  const h=document.createElement("h3");h.textContent=r.title;
+  body.append(d,h);
+  if(r.description){const t=document.createElement("p");t.className="vdesc";t.textContent=r.description;body.append(t)}
+  if(r.fb_url){const a=document.createElement("a");a.className="btn";a.href=r.fb_url;a.target="_blank";a.rel="noopener";a.textContent="Wydarzenie na Facebooku ↗";body.append(a)}
+  if(isAdm){const act=document.createElement("p");act.className="vadm";
+   const e=document.createElement("button");e.className="btn";e.textContent="Edytuj";e.onclick=()=>editVenue(r);
+   const x=document.createElement("button");x.className="btn";x.textContent="Usuń";x.onclick=()=>delVenue(r);act.append(e,x);body.append(act)}
+  c.append(ph,body);box.append(c)});
+ $("vadm").hidden=!isAdm}
+async function loadVenue(){
+ try{const x=await fetch(SUPABASE_URL+"/rest/v1/venue_events?select=*&order=event_date.asc",{headers:HDR});
+  if(x.ok){VROWS=await x.json();VEV={};VROWS.forEach(r=>{VEV[String(r.event_date).slice(0,10)]=r.title})}}
+ catch(e){console.error("venue_events:",e)}
+ drawV();try{if(sel&&VEV[sel]){sel=null;showSel()}draw();list()}catch(e){}}
+function resetVenueForm(){vEditId=null;Object.values(VF).forEach(i=>$(i).value="");$("vposter").value="";
+ $("vadd").textContent="Dodaj wydarzenie ↗";$("vcancel").hidden=true;$("vform-h").textContent="Dodaj wydarzenie (panel administratora)"}
+function editVenue(r){vEditId=r.id;Object.entries(VF).forEach(([k,i])=>$(i).value=(k==="date"?r.event_date:r[k])||"");
+ $("vadd").textContent="Zapisz zmiany ↗";$("vcancel").hidden=false;$("vform-h").textContent="Edytujesz: "+fmt(String(r.event_date))+" · "+r.title;
+ $("vadm").scrollIntoView({behavior:"smooth",block:"center"});$("vtitle").focus()}
+$("vcancel").onclick=()=>{resetVenueForm();$("vmsg").textContent=""};
+async function delVenue(r){if(!confirm("Usunąć wydarzenie "+fmt(String(r.event_date))+" ("+r.title+")?"))return;
+ const x=await fetch(SUPABASE_URL+"/rest/v1/venue_events?id=eq."+r.id,{method:"DELETE",headers:{...AH(),"Prefer":"return=minimal"}});
+ if(!x.ok){alert("Nie udało się usunąć (HTTP "+x.status+").");return}
+ resetVenueForm();await loadVenue()}
+$("vadd").onclick=async()=>{
+ const v=i=>$(i).value.trim(),m=$("vmsg"),btn=$("vadd");
+ const d=v("vdate"),t=v("vtitle"),fb=v("vfb");
+ if(!d||!t){m.textContent="Podaj datę i nazwę wydarzenia.";return}
+ if(fb&&!/^https?:\/\//.test(fb)){m.textContent="Link do Facebooka musi zaczynać się od https://";return}
+ const body={event_date:d,title:t,time_text:v("vtime")||null,description:v("vdesc")||null,fb_url:fb||null};
+ btn.disabled=true;m.textContent="Zapisywanie…";
+ try{const f=$("vposter").files[0];if(f){m.textContent="Wysyłanie plakatu…";body.poster_url=await uploadPoster(f,"sala-"+d)}
+  const x=await fetch(SUPABASE_URL+"/rest/v1/venue_events"+(vEditId?"?id=eq."+vEditId:""),{method:vEditId?"PATCH":"POST",headers:{...AH(),"Prefer":"return=minimal"},body:JSON.stringify(body)});
+  if(x.status===401||x.status===403){m.textContent="Sesja wygasła. Odśwież stronę albo zaloguj się ponownie.";return}
+  if(!x.ok)throw new Error("HTTP "+x.status+" "+(await x.text()).slice(0,120));
+  m.textContent=vEditId?"Zapisano zmiany.":"Dodano.";resetVenueForm();await loadVenue()}
+ catch(e){m.textContent="Nie udało się zapisać ("+e.message+")."}
+ finally{btn.disabled=false}};
+
+// ===== Zapamiętanie komputera administratora =====
+// Po zaznaczeniu "Zapamiętaj ten komputer" przeglądarka trzyma token odświeżania (localStorage) i sama odnawia sesję;
+// na innych urządzeniach nadal trzeba się zalogować. "Wyloguj" usuwa zapamiętanie.
+const RT_KEY="pdp_adm_rt";let rtTimer=null;
+async function refreshAdmin(){
+ let rt=null;try{rt=localStorage.getItem(RT_KEY)}catch(e){}
+ if(!rt)return false;
+ try{const x=await fetch(SUPABASE_URL+"/auth/v1/token?grant_type=refresh_token",{method:"POST",headers:{"apikey":SUPABASE_KEY,"Content-Type":"application/json"},body:JSON.stringify({refresh_token:rt})});
+  if(!x.ok){if(x.status===400||x.status===401){try{localStorage.removeItem(RT_KEY)}catch(e){}}return false}
+  const j=await x.json();adminTok=j.access_token;
+  try{sessionStorage.setItem("pdp_adm",adminTok);localStorage.setItem(RT_KEY,j.refresh_token)}catch(e){}
+  clearTimeout(rtTimer);rtTimer=setTimeout(refreshAdmin,Math.max(60,(j.expires_in||3600)-300)*1000);
+  return true}
+ catch(e){return false}}
+function rememberAfterLogin(j){
+ if(!$("adm-remember").checked)return;
+ try{localStorage.setItem(RT_KEY,j.refresh_token)}catch(e){}
+ clearTimeout(rtTimer);rtTimer=setTimeout(refreshAdmin,Math.max(60,(j.expires_in||3600)-300)*1000)}
+document.addEventListener("visibilitychange",async()=>{if(document.hidden)return;let rt=null;try{rt=localStorage.getItem(RT_KEY)}catch(e){}
+ if(rt&&adminTok){try{const exp=JSON.parse(atob(adminTok.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"))).exp*1000;if(exp-Date.now()<300000){await refreshAdmin();await loadAdmin();list();drawE();drawV()}}catch(e){}}});
+(async()=>{if(await refreshAdmin()){await loadAdmin();list();drawE();drawV()}})();
+loadVenue();
