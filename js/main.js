@@ -75,7 +75,7 @@ async function loadEvents(keep){
  if(!keep||!EV[picked])pickFirst();
  drawE();
  // wydarzenia r4b4n blokują też kalendarz rezerwacji
- try{if(sel&&EV[sel]){sel=null;showSel()}draw();list()}catch(e){}}
+ try{if(sel&&EV[sel]){sel=null;showSel()}draw();list();drawV()}catch(e){}}
 pickFirst();drawE();
 // rezerwacje
 // Odwiedzający wysyła PROŚBĘ o rezerwację: trafia ona do bazy jako "oczekuje" i e-mailem (EmailJS) na skrzynkę sali.
@@ -308,11 +308,14 @@ const VF={date:"vdate",title:"vtitle",time_text:"vtime",description:"vdesc",fb_u
 function drawV(){
  const box=$("vlist");box.innerHTML="";
  const isAdm=isAdmin();
- const rows=VROWS.filter(r=>isAdm||String(r.event_date)>=todayKey);
+ // wydarzenia sali + wydarzenia r4b4n (z kalendarza r4b4n), posortowane po dacie
+ const r4rows=Object.keys(EV).map(k=>({...(EVD[k]||{}),event_date:k,title:EV[k],_r4:true}));
+ const rows=[...VROWS,...r4rows].filter(r=>(isAdm&&!r._r4)||String(r.event_date).slice(0,10)>=todayKey)
+  .sort((a,b)=>String(a.event_date)<String(b.event_date)?-1:1);
  if(!rows.length){const p=document.createElement("p");p.className="vempty";p.append("Brak zaplanowanych wydarzeń. Zajrzyj na ");
   const a=document.createElement("a");a.href=FB_PAGE;a.target="_blank";a.rel="noopener";a.textContent="nasz Facebook ↗";p.append(a);box.append(p)}
  rows.forEach(r=>{const k=String(r.event_date).slice(0,10);
-  const c=document.createElement("article");c.className="vcard"+(k<todayKey?" past":"");
+  const c=document.createElement("article");c.className="vcard"+(k<todayKey?" past":"")+(r._r4?" r4":"");
   const ph=document.createElement("div");ph.className="vposter";
   if(r.poster_url){const im=document.createElement("img");im.src=r.poster_url;im.alt="Plakat: "+r.title;im.loading="lazy";ph.append(im)}
   else{const s=document.createElement("span");s.textContent=+k.slice(8,10)+"."+k.slice(5,7);ph.append(s)}
@@ -322,8 +325,10 @@ function drawV(){
   const h=document.createElement("h3");h.textContent=r.title;
   body.append(d,h);
   if(r.description){const t=document.createElement("p");t.className="vdesc";t.textContent=r.description;body.append(t)}
+  if(r._r4){const t=document.createElement("p");t.className="vtag";t.textContent="r4b4n";body.insertBefore(t,body.firstChild);
+   const a=document.createElement("button");a.type="button";a.className="btn";a.textContent="Szczegóły ↗";a.onclick=()=>openEvent(k);body.append(a)}
   if(r.fb_url){const a=document.createElement("a");a.className="btn";a.href=r.fb_url;a.target="_blank";a.rel="noopener";a.textContent="Wydarzenie na Facebooku ↗";body.append(a)}
-  if(isAdm){const act=document.createElement("p");act.className="vadm";
+  if(isAdm&&!r._r4){const act=document.createElement("p");act.className="vadm";
    const e=document.createElement("button");e.className="btn";e.textContent="Edytuj";e.onclick=()=>editVenue(r);
    const x=document.createElement("button");x.className="btn";x.textContent="Usuń";x.onclick=()=>delVenue(r);act.append(e,x);body.append(act)}
   c.append(ph,body);box.append(c)});

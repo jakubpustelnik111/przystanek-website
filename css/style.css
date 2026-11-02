@@ -301,3 +301,10 @@ body.modal-on{overflow:hidden}
 .abar .btn{padding:8px 12px}
 body.preview .abar::before{background:#1fa35c}
 @media(max-width:600px){.abar{left:12px;right:12px;bottom:12px;justify-content:space-between}}
+
+/* wydarzenia r4b4n w sekcji Wydarzenia */
+.vcard.r4{border-left:5px solid #1fa35c}
+.vcard.r4 .vdate{color:#1fa35c}
+.vcard.r4 .vposter span{color:#a6e34a}
+.vtag{display:inline-block;margin:0;padding:2px 8px;font:800 10px Unbounded,sans-serif;text-transform:uppercase;background:linear-gradient(90deg,#1fa35c,#a6e34a);color:#111}
+.vcard.r4 .btn:hover{background:#a6e34a;color:#111}
