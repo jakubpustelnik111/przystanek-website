@@ -409,3 +409,34 @@ function updAdminBar(){let on=false;try{on=!!adminTok}catch(e){}
 abar.querySelector("button").onclick=()=>{guestPreview=!guestPreview;try{sessionStorage.setItem("pdp_preview",guestPreview?"1":"0")}catch(e){}
  list();drawE();drawV()};
 updAdminBar();
+
+// ===== Strona główna: ściana zdjęć z podglądem na pełnym ekranie =====
+(function(){
+ const wall=document.getElementById("wall");if(!wall)return;
+ const tiles=[...wall.querySelectorAll(".wtile")],srcs=tiles.map(t=>t.querySelector("img").src);
+ const lb=document.getElementById("lb"),img=document.getElementById("lb-img"),num=document.getElementById("lb-n"),th=document.getElementById("lb-th");
+ let cur=0,back=null;
+ // "+N" na ostatnim widocznym kafelku (liczba widocznych zależy od szerokości ekranu)
+ function markMore(){tiles.forEach(t=>t.removeAttribute("data-more"));
+  const vis=tiles.filter(t=>getComputedStyle(t).display!=="none");const rest=tiles.length-vis.length;
+  if(rest>0)vis[vis.length-1].setAttribute("data-more","+"+(rest+1))}
+ markMore();addEventListener("resize",markMore);
+ srcs.forEach((s,i)=>{const b=document.createElement("button");b.type="button";b.setAttribute("aria-label","Zdjęcie "+(i+1));
+  const m=document.createElement("img");m.src=s;m.alt="";m.loading="lazy";b.append(m);b.onclick=()=>show(i);th.append(b)});
+ function show(i){cur=(i+srcs.length)%srcs.length;img.src=srcs[cur];img.alt="Zdjęcie "+(cur+1)+" z "+srcs.length+", impreza w Przystanku Duży Pokój";
+  num.textContent=(cur+1)+" / "+srcs.length+" · Przystanek Duży Pokój";
+  [...th.children].forEach((b,j)=>b.classList.toggle("on",j===cur));th.children[cur].scrollIntoView({block:"nearest",inline:"center"});
+  new Image().src=srcs[(cur+1)%srcs.length]}
+ function open(i){back=document.activeElement;lb.hidden=false;document.body.classList.add("modal-on");show(i);document.getElementById("lb-x").focus()}
+ function close(){lb.hidden=true;document.body.classList.remove("modal-on");if(back&&back.focus)back.focus()}
+ tiles.forEach((t,i)=>t.onclick=()=>open(i));
+ document.getElementById("lb-x").onclick=close;
+ document.getElementById("lb-prev").onclick=()=>show(cur-1);
+ document.getElementById("lb-next").onclick=()=>show(cur+1);
+ lb.addEventListener("click",e=>{if(e.target===lb||e.target.id==="lb-main")close()});
+ addEventListener("keydown",e=>{if(lb.hidden)return;if(e.key==="Escape")close();else if(e.key==="ArrowRight")show(cur+1);else if(e.key==="ArrowLeft")show(cur-1)});
+ // przesuwanie palcem
+ let x0=null;const main=document.getElementById("lb-main");
+ main.addEventListener("touchstart",e=>{x0=e.touches[0].clientX},{passive:true});
+ main.addEventListener("touchend",e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>45)show(cur+(dx<0?1:-1));x0=null},{passive:true});
+})();
