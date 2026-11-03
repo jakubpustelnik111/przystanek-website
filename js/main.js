@@ -114,7 +114,7 @@ function draw(){const cal=$("cal");cal.innerHTML="";
  for(let d=1;d<=n;d++){const k=iso(y,m,d),b=document.createElement("button");b.textContent=d;
   const isBusy=busy.has(k)||!!VEV[k],isR4=!isBusy&&!!EV[k];
   if(k<todayKey||isBusy||isR4)b.disabled=true;if(isBusy){b.classList.add("busy");b.title=VEV[k]||busy.get(k)||"Zajęty"}
-  if(isR4){if(k>=todayKey)b.classList.add("r4");b.title="r4b4n: "+EV[k]}
+  if(isR4){b.classList.add(k>=todayKey?"r4":"r4past");b.title="r4b4n: "+EV[k]}
   if(k===todayKey)b.classList.add("today");if(k===sel)b.classList.add("sel");
   b.onclick=()=>{sel=k;showSel();draw()};cal.appendChild(b)}}
 $("prev").onclick=()=>{m--;if(m<0){m=11;y--}draw()};
