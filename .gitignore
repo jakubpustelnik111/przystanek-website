@@ -1,2 +1,5 @@
 .DS_Store
 Thumbs.db
+
+# notatki projektu trzymane lokalnie (folder na Pulpicie)
+docs/
