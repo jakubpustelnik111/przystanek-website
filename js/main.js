@@ -413,7 +413,7 @@ updAdminBar();
 // ===== Strona główna: ściana zdjęć z podglądem na pełnym ekranie =====
 (function(){
  const wall=document.getElementById("wall");if(!wall)return;
- const tiles=[...wall.querySelectorAll(".wtile")],srcs=tiles.map(t=>t.querySelector("img").src);
+ const tiles=[...wall.querySelectorAll(".wtile")],thumbs=tiles.map(t=>t.querySelector("img").getAttribute("src")),srcs=thumbs.map(u=>u.replace("/sm/","/"));   // podgląd: pełna rozdzielczość, miniatury: małe pliki
  const lb=document.getElementById("lb"),img=document.getElementById("lb-img"),num=document.getElementById("lb-n"),th=document.getElementById("lb-th");
  let cur=0,back=null;
  // "+N" na ostatnim widocznym kafelku (liczba widocznych zależy od szerokości ekranu)
@@ -422,7 +422,7 @@ updAdminBar();
   if(rest>0)vis[vis.length-1].setAttribute("data-more","+"+(rest+1))}
  markMore();addEventListener("resize",markMore);
  srcs.forEach((s,i)=>{const b=document.createElement("button");b.type="button";b.setAttribute("aria-label","Zdjęcie "+(i+1));
-  const m=document.createElement("img");m.src=s;m.alt="";m.loading="lazy";b.append(m);b.onclick=()=>show(i);th.append(b)});
+  const m=document.createElement("img");m.src=thumbs[i];m.alt="";m.loading="lazy";b.append(m);b.onclick=()=>show(i);th.append(b)});
  function show(i){cur=(i+srcs.length)%srcs.length;img.src=srcs[cur];img.alt="Zdjęcie "+(cur+1)+" z "+srcs.length+", impreza w Przystanku Duży Pokój";
   num.textContent=(cur+1)+" / "+srcs.length+" · Przystanek Duży Pokój";
   [...th.children].forEach((b,j)=>b.classList.toggle("on",j===cur));th.children[cur].scrollIntoView({block:"nearest",inline:"center"});
