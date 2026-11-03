@@ -317,3 +317,7 @@ body.preview .abar::before{background:#1fa35c}
 /* karta wydarzenia bez plakatu: data i nazwa */
 .vposter.noimg{flex-direction:column;gap:8px;padding:10px;text-align:center;background:linear-gradient(160deg,#111,#2a2a2a)}
 .vposter.noimg em{font:800 10px/1.25 Unbounded,sans-serif;font-style:normal;text-transform:uppercase;color:#eee;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+
+/* minione wydarzenia r4b4n: wyszarzone (nadal można otworzyć szczegóły) */
+.cal button.ev.past{background:var(--card);color:var(--ink);opacity:.45;font-weight:600}
+.cal button.ev.past:hover{background:#1fa35c;color:#fff;opacity:.8}

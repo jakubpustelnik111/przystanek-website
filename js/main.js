@@ -34,7 +34,7 @@ function drawE(){
  const off=(new Date(ey,em,1).getDay()+6)%7,n=new Date(ey,em+1,0).getDate();
  for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
  for(let d=1;d<=n;d++){const k=ey+"-"+pad(em+1)+"-"+pad(d);
-  if(EV[k]){const b=document.createElement("button");b.textContent=d;b.className="ev"+(k===picked?" sel":"");b.title=EV[k];
+  if(EV[k]){const b=document.createElement("button");b.textContent=d;b.className="ev"+(k<todayK?" past":"")+(k===picked?" sel":"");b.title=EV[k];
    b.onclick=()=>{picked=k;drawE();openEvent(k)};cal.appendChild(b)}
   else{const c=document.createElement("div");c.textContent=d;c.className="plain";cal.appendChild(c)}}
  const info=document.getElementById("einfo");info.innerHTML="";
@@ -114,7 +114,7 @@ function draw(){const cal=$("cal");cal.innerHTML="";
  for(let d=1;d<=n;d++){const k=iso(y,m,d),b=document.createElement("button");b.textContent=d;
   const isBusy=busy.has(k)||!!VEV[k],isR4=!isBusy&&!!EV[k];
   if(k<todayKey||isBusy||isR4)b.disabled=true;if(isBusy){b.classList.add("busy");b.title=VEV[k]||busy.get(k)||"Zajęty"}
-  if(isR4){b.classList.add("r4");b.title="r4b4n: "+EV[k]}
+  if(isR4){if(k>=todayKey)b.classList.add("r4");b.title="r4b4n: "+EV[k]}
   if(k===todayKey)b.classList.add("today");if(k===sel)b.classList.add("sel");
   b.onclick=()=>{sel=k;showSel();draw()};cal.appendChild(b)}}
 $("prev").onclick=()=>{m--;if(m<0){m=11;y--}draw()};
