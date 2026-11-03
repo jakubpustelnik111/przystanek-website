@@ -49,7 +49,7 @@ section.view{display:none}section.view.on{display:block}
 .cal button.sel{background:var(--ink);color:var(--bg)}
 .cal button.busy{background:var(--acc);color:#111;text-decoration:line-through}
 .cal button:disabled{opacity:.3;cursor:not-allowed}
-label{display:block;font:600 11px Montserrat;margin:12px 0 4px}
+label{display:block;font:600 12px Montserrat,Arial,sans-serif;margin:12px 0 4px}
 input,textarea{width:100%;background:var(--card);color:var(--ink);border:1px solid var(--line);padding:10px;font:14px Montserrat,sans-serif;border-radius:0}
 .msg{margin-top:12px;font-weight:600}
 .list>div{border:1px solid var(--line);padding:10px;margin-top:8px;background:var(--card)}
@@ -155,7 +155,7 @@ nav a[data-v="r4b4n"]:hover,nav a[data-v="r4b4n"]:focus-visible{background:linea
 /* opis kolektywu r4b4n */
 .about p{margin:0 0 12px}.about p:last-child{margin-bottom:0}
 .djs{margin:4px 0 14px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:baseline}
-.djs dt{font:800 12px Unbounded,sans-serif;text-transform:uppercase;color:#16803f}
+.djs dt{font:800 12px Unbounded,sans-serif;text-transform:uppercase;color:var(--g-t)}
 .djs dd{margin:0;padding:6px 0 6px 12px;border-left:4px solid #1fa35c;background:var(--card)}
 
 .about .hot{font:800 15px/1.3 Unbounded,sans-serif;padding:10px 12px;border-left:6px solid #1fa35c;background:var(--card)}
@@ -227,7 +227,7 @@ body.modal-on{overflow:hidden}
 .evm-ph img{width:150px;filter:invert(1);opacity:.85}
 .evm-info{padding:28px 26px;overflow-y:auto;position:relative}
 .evm-info::before{content:"";position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#1fa35c,#a6e34a)}
-.evm-date{font:800 11px Unbounded,sans-serif;text-transform:uppercase;color:#1fa35c;margin:6px 0 8px}
+.evm-date{font:800 11px Unbounded,sans-serif;text-transform:uppercase;color:var(--g-t);margin:6px 0 8px}
 .evm-info h2{font-size:clamp(22px,3vw,32px);line-height:1.1;margin-bottom:16px}
 .evm-facts{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;margin:0 0 14px}
 .evm-facts dt{font:800 11px Unbounded,sans-serif;text-transform:uppercase;opacity:.7;padding-top:2px}
@@ -285,7 +285,7 @@ body.modal-on{overflow:hidden}
 .vposter img{width:100%;height:100%;object-fit:cover;display:block}
 .vposter span{font:800 22px Unbounded,sans-serif;color:var(--acc)}
 .vbody{padding:12px 14px;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
-.vdate{font:800 10px Unbounded,sans-serif;text-transform:uppercase;color:var(--acc);margin:0}
+.vdate{font:800 11px Unbounded,sans-serif;text-transform:uppercase;color:var(--acc-t);margin:0}
 .vbody h3{font-size:16px;line-height:1.2}
 .vdesc{margin:0;font-size:13px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .vbody .btn{text-decoration:none;margin-top:auto;padding:8px 12px}
@@ -304,7 +304,7 @@ body.preview .abar::before{background:#1fa35c}
 
 /* wydarzenia r4b4n w sekcji Wydarzenia */
 .vcard.r4{border-left:5px solid #1fa35c}
-.vcard.r4 .vdate{color:#1fa35c}
+.vcard.r4 .vdate{color:var(--g-t)}
 .vcard.r4 .vposter span{color:#a6e34a}
 .vtag{display:inline-block;margin:0;padding:2px 8px;font:800 10px Unbounded,sans-serif;text-transform:uppercase;background:linear-gradient(90deg,#1fa35c,#a6e34a);color:#111}
 .vcard.r4 .btn:hover{background:#a6e34a;color:#111}
@@ -365,3 +365,15 @@ body.preview .abar::before{background:#1fa35c}
 .lb-th button.on{outline:2px solid var(--acc);outline-offset:1px}
 .lb-th img{width:52px;height:66px;object-fit:cover;display:block}
 @media(max-width:600px){.lb-main{padding:0 8px}.lb-ar{width:44px;height:44px;top:auto;bottom:10px;transform:none;opacity:.9}.lb-ar.l{left:12px}.lb-ar.r{right:12px}.lb-th img{width:40px;height:52px}}
+
+/* ===== Czytelność: kolory tekstu z kontrastem min. 4,5:1 (WCAG AA) ===== */
+:root{--acc-t:#8a5500;--g-t:#13703d}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--acc-t:#de9100;--g-t:#4cc16a}}
+:root[data-theme="dark"]{--acc-t:#de9100;--g-t:#4cc16a}
+/* zielone pola z białym tekstem: ciemniejsza zieleń */
+#v-r4b4n .tag{background:linear-gradient(90deg,#13703d,#16803f)}
+.cal button.ev,.cal button.r4,.cal button.r4:disabled{background:#16803f}
+.cal button.ev:hover{background:#13703d}
+.einfo{border-left-color:#16803f}
+/* e-mail r4b4n */
+.r4mail{margin:0 0 16px;font-weight:600}.r4mail a{color:inherit}
