@@ -439,3 +439,13 @@ nav a:not(.on):hover{background:var(--navy);color:#fff}
 :root[data-theme="dark"] .band.opinie,:root[data-theme="dark"] .site-foot{background:#09101f}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .band.opinie,:root:not([data-theme="light"]) .site-foot{background:#09101f}}
 :root[data-theme="dark"] .btn:not(.btn-main):hover,:root[data-theme="dark"] nav a:not(.on):hover{background:#2a3f72}
+/* Dwa kolory, dwie strony Przystanku: granat = kultura (koncerty, DJ sety, projekty), pomarańcz = dart i dawna nazwa */
+:root{--kult:#16233f;--kult-t:#1f3a80}
+:root[data-theme="dark"]{--kult:#5b7fd6;--kult-t:#9fb6ee}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--kult:#5b7fd6;--kult-t:#9fb6ee}}
+.offer li.k{border-left-color:var(--kult)}
+.vcard:not(.r4){border-left:5px solid var(--kult)}
+.vcard:not(.r4) .vdate{color:var(--kult-t)}
+:root[data-theme="dark"] #v-start .tag,:root[data-theme="dark"] #v-rezerwacje .tag{background:#1f3260;color:#edf0f7}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) #v-start .tag,:root:not([data-theme="light"]) #v-rezerwacje .tag{background:#1f3260;color:#edf0f7}}
+.vcard:not(.r4) .vposter.noimg span{color:#9fb6ee}
