@@ -348,7 +348,7 @@ loadEvents();
 
 // ===== Wydarzenia w sali (sekcja "Wydarzenia" na stronie głównej; tabela venue_events) =====
 // Administrator dodaje je w panelu pod listą; daty wydarzeń są też zajęte w kalendarzu rezerwacji.
-const FB_PAGE="https://www.facebook.com/Bodycamfan";
+const FB_PAGE="https://www.facebook.com/profile.php?id=61590560972544";
 let VROWS=[],vEditId=null;
 const VF={date:"vdate",title:"vtitle",time_text:"vtime",description:"vdesc",fb_url:"vfb"};
 function drawV(){
