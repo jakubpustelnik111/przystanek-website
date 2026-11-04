@@ -1,6 +1,6 @@
 // zakładki strony (adres #nazwa); "prywatnosc" nie ma pozycji w menu, link jest w stopce i pod formularzem
 const V=["start","rezerwacje","r4b4n","prywatnosc"];
-function show(){let h=(location.hash||"#start").slice(1);if(h.startsWith("wydarzenie/")){if(!document.querySelector("section.view.on"))h="start";else return}if(!V.includes(h))h="start";setTimeout(()=>trackView(h),0);
+function show(){let h=(location.hash||"#start").slice(1);if(h==="admin"){h="rezerwacje";setTimeout(()=>{try{openAdminLogin()}catch(e){}},300)}if(h.startsWith("wydarzenie/")){if(!document.querySelector("section.view.on"))h="start";else return}if(!V.includes(h))h="start";setTimeout(()=>trackView(h),0);
  V.forEach(v=>{document.getElementById("v-"+v).classList.toggle("on",v===h)});
  document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===h));document.body.classList.toggle("g",h==="r4b4n");window.scrollTo(0,0)}
 addEventListener("hashchange",show);show();
@@ -190,7 +190,7 @@ async function editDesc(r){
 function mkBtn(txt,fn){const b=document.createElement("button");b.className="btn";b.textContent=txt;b.style.padding="6px 10px";b.onclick=fn;return b}
 function list(){const l=$("list");l.innerHTML="";
  const adm=isAdmin()&&adminRows;
- $("admlink").hidden=!!adm;$("admout").hidden=!adm;
+ $("admout").hidden=!adm;
  $("adm").hidden=!!adm||$("adm").dataset.open!=="1";
  $("list-h").textContent=adm?"Rezerwacje (panel administratora)":"Zajęte terminy";
  if(adm){
@@ -213,9 +213,15 @@ function list(){const l=$("list");l.innerHTML="";
  ds.forEach(k=>{const d=document.createElement("div");const r4=!busy.has(k)&&!VEV[k]&&!!EV[k],desc=VEV[k]?"Wydarzenie: "+VEV[k]:r4?"r4b4n: "+EV[k]:busy.get(k);
   const b=document.createElement("b");b.textContent=fmtD(k);d.append(b,document.createTextNode(" · "+(desc||"zajęty")));
   if(r4)d.className="r4";else if(desc)d.className="open";l.appendChild(d)})}
-$("admlink").onclick=e=>{e.preventDefault();const a=$("adm");a.dataset.open="1";a.hidden=false}
+// Logowanie administratora: formularz nie jest częścią strony – pojawia się tylko pod adresem …/#admin
+// (strona bez pól hasła nie wygląda dla filtrów operatorów jak strona wyłudzająca dane).
+function openAdminLogin(){const a=$("adm");
+ if(!a.dataset.built){a.dataset.built="1";
+  a.innerHTML='<h3 style="font-size:14px;margin:18px 0 0">Panel administratora</h3><label for="adm-mail">E-mail administratora</label><input id="adm-mail" type="email" autocomplete="username"><label for="adm-pass">Hasło</label><input id="adm-pass" type="password" autocomplete="current-password"><label class="chk"><input type="checkbox" id="adm-remember" checked> Zapamiętaj ten komputer (nie zaznaczaj na cudzym urządzeniu)</label><p><button class="btn" id="adm-login">Zaloguj ↗</button></p><div class="msg" id="adm-msg"></div>';
+  $("adm-login").onclick=adminLogin}
+ a.dataset.open="1";a.hidden=!!adminTok;if(!adminTok){a.scrollIntoView({block:"center"});$("adm-mail").focus()}}
 $("admout").onclick=e=>{e.preventDefault();try{localStorage.removeItem("pdp_adm_rt")}catch(x){}clearTimeout(rtTimer);logoutAdmin()};
-$("adm-login").onclick=async()=>{
+async function adminLogin(){
  const msg=$("adm-msg"),btn=$("adm-login");
  const email=$("adm-mail").value.trim(),pass=$("adm-pass").value;
  if(!email||!pass){msg.textContent="Podaj e-mail i hasło.";return}
@@ -226,7 +232,7 @@ $("adm-login").onclick=async()=>{
   $("adm-pass").value="";msg.textContent="";
   await loadAdmin();list();drawE();drawV()}
  catch(e){msg.textContent="Nie udało się zalogować. Sprawdź e-mail i hasło."}
- finally{btn.disabled=false}};
+ finally{btn.disabled=false}}
 $("f-open").onchange=()=>{$("f-pub-wrap").hidden=!$("f-open").checked};
 async function sendMail(p){
  const x=await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},
@@ -431,7 +437,7 @@ async function refreshAdmin(){
   return true}
  catch(e){return false}}
 function rememberAfterLogin(j){
- if(!$("adm-remember").checked)return;
+ if(!$("adm-remember")||!$("adm-remember").checked)return;
  try{localStorage.setItem(RT_KEY,j.refresh_token)}catch(e){}
  clearTimeout(rtTimer);rtTimer=setTimeout(refreshAdmin,Math.max(60,(j.expires_in||3600)-300)*1000)}
 document.addEventListener("visibilitychange",async()=>{if(document.hidden)return;let rt=null;try{rt=localStorage.getItem(RT_KEY)}catch(e){}
