@@ -420,12 +420,12 @@ body.preview .abar::before{background:#1fa35c}
 .hl{display:block;text-align:left}
 #v-start>.band:first-child .big{font-size:clamp(26px,5vw,52px);line-height:1.05;text-align:left}
 /* ===== Granat: kolor bazowy (tekst, linie, tła zdjęć), gradient różowo-pomarańczowy zostaje akcentem ===== */
-:root{--navy:#16233f;--navy2:#1f3260;--bg:#e5e6ea;--ink:#16233f;--line:#16233f;--card:rgba(255,255,255,.45)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1730;--ink:#edf0f7;--line:#bfc8dc;--card:rgba(255,255,255,.04)}}
-:root[data-theme="dark"]{--bg:#0e1730;--ink:#edf0f7;--line:#bfc8dc;--card:rgba(255,255,255,.04)}
+:root{--navy:#203566;--navy2:#2a4280;--bg:#e5e6ea;--ink:#203566;--line:#203566;--card:rgba(255,255,255,.45)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13214a;--ink:#edf0f7;--line:#bfc8dc;--card:rgba(255,255,255,.04)}}
+:root[data-theme="dark"]{--bg:#13214a;--ink:#edf0f7;--line:#bfc8dc;--card:rgba(255,255,255,.04)}
 .wall,.vposter,.evm-poster,.slide.photo{background:var(--navy)}
 .wtile{background:var(--navy2)}
-.vposter.noimg{background:linear-gradient(160deg,#16233f,#2a3f72)}
+.vposter.noimg{background:linear-gradient(160deg,#203566,#34508f)}
 nav a:not(.on):hover{background:var(--navy);color:#fff}
 .btn:not(.btn-main):hover{background:var(--navy);color:#fff}
 .btn-main{border-color:var(--navy)}
@@ -436,16 +436,16 @@ nav a:not(.on):hover{background:var(--navy);color:#fff}
 .site-foot{background:var(--navy);color:#dfe4ef}
 .site-foot a{color:#ffb84d!important}
 /* ciemny motyw: pasy o ton ciemniejsze od tła */
-:root[data-theme="dark"] .band.opinie,:root[data-theme="dark"] .site-foot{background:#09101f}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .band.opinie,:root:not([data-theme="light"]) .site-foot{background:#09101f}}
-:root[data-theme="dark"] .btn:not(.btn-main):hover,:root[data-theme="dark"] nav a:not(.on):hover{background:#2a3f72}
+:root[data-theme="dark"] .band.opinie,:root[data-theme="dark"] .site-foot{background:#0d1836}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) .band.opinie,:root:not([data-theme="light"]) .site-foot{background:#0d1836}}
+:root[data-theme="dark"] .btn:not(.btn-main):hover,:root[data-theme="dark"] nav a:not(.on):hover{background:#34508f}
 /* Dwa kolory, dwie strony Przystanku: granat = kultura (koncerty, DJ sety, projekty), pomarańcz = dart i dawna nazwa */
-:root{--kult:#16233f;--kult-t:#1f3a80}
+:root{--kult:#203566;--kult-t:#2a4aa0}
 :root[data-theme="dark"]{--kult:#5b7fd6;--kult-t:#9fb6ee}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--kult:#5b7fd6;--kult-t:#9fb6ee}}
 .offer li.k{border-left-color:var(--kult)}
 .vcard:not(.r4){border-left:5px solid var(--kult)}
 .vcard:not(.r4) .vdate{color:var(--kult-t)}
-:root[data-theme="dark"] #v-start .tag,:root[data-theme="dark"] #v-rezerwacje .tag{background:#1f3260;color:#edf0f7}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) #v-start .tag,:root:not([data-theme="light"]) #v-rezerwacje .tag{background:#1f3260;color:#edf0f7}}
+:root[data-theme="dark"] #v-start .tag,:root[data-theme="dark"] #v-rezerwacje .tag{background:#2a4280;color:#edf0f7}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]) #v-start .tag,:root:not([data-theme="light"]) #v-rezerwacje .tag{background:#2a4280;color:#edf0f7}}
 .vcard:not(.r4) .vposter.noimg span{color:#9fb6ee}
