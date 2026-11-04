@@ -516,3 +516,10 @@ async function loadStats(){const box=document.getElementById("abar-stats");if(!b
  abar.insertBefore(box,abar.firstChild);
  const upd=updAdminBar;updAdminBar=function(){upd();if(!abar.hidden&&!box.dataset.loaded){box.dataset.loaded="1";loadStats()}if(abar.hidden)delete box.dataset.loaded};
  updAdminBar()})();
+
+// hasło na stronie głównej: pierwsza linijka skalowana do szerokości drugiej (obie równej długości)
+(function(){const a=document.querySelector(".hl1"),b=document.querySelector(".hl2");if(!a||!b)return;
+ function fit(){a.style.fontSize="";const wa=a.getBoundingClientRect().width,wb=b.getBoundingClientRect().width;
+  if(!wa||!wb)return;a.style.fontSize=(parseFloat(getComputedStyle(a).fontSize)*wb/wa)+"px"}
+ fit();addEventListener("resize",fit);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fit);
+ addEventListener("hashchange",()=>setTimeout(fit,0))})();
