@@ -377,3 +377,40 @@ body.preview .abar::before{background:#1fa35c}
 .einfo{border-left-color:#16803f}
 /* e-mail r4b4n */
 .r4mail{margin:0 0 16px;font-weight:600}.r4mail a{color:inherit}
+
+/* ===== Opinie gości ===== */
+.op-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.op-score{display:block;text-decoration:none;color:inherit;padding:10px 14px;border:1px solid var(--line);background:var(--card)}
+.op-score b{font:800 34px/1 Unbounded,sans-serif}
+.op-score span{font:800 14px Unbounded,sans-serif;opacity:.7;margin-left:2px}
+.op-score em{display:block;font-style:normal;color:var(--acc-t);letter-spacing:2px;margin-top:4px}
+.op-score small{display:block;font-size:12px;text-decoration:underline}
+.op-score:hover{border-color:var(--acc)}
+.op-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.op-list blockquote{margin:0;padding:14px 16px;border-left:5px solid var(--acc);background:var(--card);display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.op-list p{margin:0;font-size:14px}
+.op-list footer{font:800 10px Unbounded,sans-serif;text-transform:uppercase;opacity:.7}
+@media(max-width:900px){.op-list{grid-template-columns:1fr}}
+.resp{font-size:12px;margin:8px 0 0;opacity:.8}
+/* ===== Wydarzenia: karty i okno ===== */
+.vlinks{display:flex;gap:6px;flex-wrap:wrap;margin:auto 0 0}
+.vlinks .btn{margin:0}
+.vposter.click{cursor:pointer}
+.vposter.click img{transition:transform .35s}.vposter.click:hover img{transform:scale(1.05)}
+.evm-links .btn{cursor:pointer}
+.evm.sala .evm-info::before{background:linear-gradient(90deg,var(--pink),var(--acc))}
+.evm.sala .evm-date{color:var(--acc-t)}
+.evm.sala .evm-links .btn:hover{background:var(--acc)}
+.evm.sala .evm-ph img{display:none}
+/* ===== Licznik odwiedzin w pasku administratora ===== */
+.abar{flex-wrap:wrap;max-width:min(560px,calc(100vw - 32px))}
+.abar-stats{border:0;background:none;color:inherit;font:600 12px Montserrat,Arial,sans-serif;text-align:left;cursor:pointer;padding:0;display:flex;flex-direction:column;gap:6px}
+.abar-stats .st-sum{text-decoration:underline dotted}
+.abar-stats .st-det{display:none;font-size:11px}
+.abar-stats.open .st-det{display:block}
+.st-chart{display:flex;align-items:flex-end;gap:3px;height:46px;margin:4px 0}
+.st-chart i{display:block;width:10px;background:linear-gradient(var(--pink),var(--acc))}
+.st-det p{margin:0}
+.evm.noposter .evm-box{grid-template-columns:1fr;width:min(560px,100%)}
+.evm.noposter .evm-poster{display:none}
+@media(max-width:760px){.evm.noposter .evm-box{height:auto;max-height:100%;align-self:center}}

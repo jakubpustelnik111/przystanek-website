@@ -1,6 +1,6 @@
 // zakładki strony (adres #nazwa); "prywatnosc" nie ma pozycji w menu, link jest w stopce i pod formularzem
 const V=["start","rezerwacje","r4b4n","prywatnosc"];
-function show(){let h=(location.hash||"#start").slice(1);if(!V.includes(h))h="start";
+function show(){let h=(location.hash||"#start").slice(1);if(h.startsWith("wydarzenie/")){if(!document.querySelector("section.view.on"))h="start";else return}if(!V.includes(h))h="start";setTimeout(()=>trackView(h),0);
  V.forEach(v=>{document.getElementById("v-"+v).classList.toggle("on",v===h)});
  document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===h));document.body.classList.toggle("g",h==="r4b4n");window.scrollTo(0,0)}
 addEventListener("hashchange",show);show();
@@ -48,34 +48,74 @@ function drawE(){
 }
 document.getElementById("eprev").onclick=()=>{em--;if(em<0){em=11;ey--}drawE()};
 document.getElementById("enext").onclick=()=>{em++;if(em>11){em=0;ey++}drawE()};
-// okno wydarzenia (pop-up)
-const evm=document.getElementById("evm");let evmBack=null;
-function openEvent(k){if(!EV[k])return;
- const r={...(EVD[k]||{}),event_date:k,title:EV[k]};
+// okno wydarzenia (pop-up) – wydarzenia r4b4n i wydarzenia sali; link bezpośredni: #wydarzenie/RRRR-MM-DD
+const evm=document.getElementById("evm");let evmBack=null,evmCur=null;
+const VENUE_ADDR="Przystanek Duży Pokój, Rondo Kaponiera, 60-829 Poznań";
+function eventByDate(k){
+ if(EV[k])return {...(EVD[k]||{}),event_date:k,title:EV[k],_src:"r4"};
+ const v=(typeof VROWS!=="undefined"?VROWS:[]).find(x=>String(x.event_date).slice(0,10)===k);
+ return v?{...v,event_date:k,_src:"sala"}:null}
+function eventUrl(k){return location.origin+location.pathname+"#wydarzenie/"+k}
+function openEvent(k){const r=eventByDate(k);if(!r)return;evmCur=r;
  const dt=new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8,10));
- document.getElementById("evm-date").textContent=DNE[dt.getDay()]+", "+fmt(k);
+ document.getElementById("evm-date").textContent=(r._src==="r4"?"r4b4n · ":"")+DNE[dt.getDay()]+", "+fmt(k);
  document.getElementById("evm-title").textContent=r.title;
+ evm.classList.toggle("sala",r._src==="sala");evm.classList.toggle("noposter",r._src==="sala"&&!r.poster_url);
  const img=document.getElementById("evm-img"),ph=document.getElementById("evm-ph");
  if(r.poster_url){img.src=r.poster_url;img.alt="Plakat: "+r.title;img.hidden=false;ph.hidden=true}else{img.removeAttribute("src");img.hidden=true;ph.hidden=false}
  const dl=document.getElementById("evm-facts");dl.innerHTML="";
  [["Otwarcie bramek",r.doors],["Godziny",r.time_text],["Line-up",r.lineup],["Tax",r.entry]].forEach(([a,b])=>{if(!b)return;
   const t=document.createElement("dt");t.textContent=a;const d=document.createElement("dd");d.textContent=b;dl.append(t,d)});
  const ds=document.getElementById("evm-desc");ds.textContent=r.description||"";ds.hidden=!r.description;
- if(!dl.children.length&&!r.description){ds.textContent="Szczegóły wkrótce. Śledź nas na Instagramie.";ds.hidden=false}
- const post=document.getElementById("evm-post");if(r.post_url){post.href=r.post_url;post.hidden=false}else post.hidden=true;
- document.getElementById("evm-ig").hidden=!!r.post_url;   // gdy jest post, zamiast ogólnego profilu
- evmBack=document.activeElement;evm.hidden=false;document.body.classList.add("modal-on");document.getElementById("evm-x").focus()}
-function closeEvent(){evm.hidden=true;document.body.classList.remove("modal-on");if(evmBack&&evmBack.focus)evmBack.focus()}
+ if(!dl.children.length&&!r.description){ds.textContent="Szczegóły wkrótce.";ds.hidden=false}
+ const post=document.getElementById("evm-post"),ig=document.getElementById("evm-ig");
+ const link=r._src==="r4"?r.post_url:r.fb_url;
+ if(link){post.href=link;post.textContent=r._src==="r4"?"Zobacz post na Instagramie ↗":"Wydarzenie na Facebooku ↗";post.hidden=false}else post.hidden=true;
+ ig.hidden=r._src!=="r4"||!!r.post_url;   // profil r4b4n tylko, gdy wydarzenie r4b4n nie ma posta
+ document.getElementById("evm-share").textContent="Udostępnij ↗";
+ if(location.hash!=="#wydarzenie/"+k)history.replaceState(null,"","#wydarzenie/"+k);
+ if(evm.hidden){evmBack=document.activeElement;evm.hidden=false;document.body.classList.add("modal-on");document.getElementById("evm-x").focus()}}
+function closeEvent(){evm.hidden=true;evmCur=null;document.body.classList.remove("modal-on");
+ if(location.hash.startsWith("#wydarzenie/"))history.replaceState(null,"",location.pathname+location.search+(document.getElementById("v-r4b4n").classList.contains("on")?"#r4b4n":"#start"));
+ if(evmBack&&evmBack.focus)evmBack.focus()}
 document.getElementById("evm-x").onclick=closeEvent;
 evm.addEventListener("click",e=>{if(e.target===evm)closeEvent()});
 addEventListener("keydown",e=>{if(e.key==="Escape"&&!evm.hidden)closeEvent()});
+// plik kalendarza (.ics): godziny brane z pola "Godziny" (np. 20:00–02:00), bez godzin – wydarzenie całodniowe
+function icsFor(r){const k=String(r.event_date).slice(0,10),d=k.replace(/-/g,"");
+ const esc=s=>String(s||"").replace(/\\/g,"\\\\").replace(/\n/g,"\\n").replace(/[,;]/g,m=>"\\"+m);
+ const tm=String(r.time_text||"").match(/(\d{1,2})[:.](\d{2})(?:\s*[–-]\s*(\d{1,2})[:.](\d{2}))?/);
+ let when;
+ if(tm){const sh=+tm[1],sm=+tm[2],start=new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8,10),sh,sm);
+  let end=new Date(start.getTime()+5*3600e3);
+  if(tm[3]){end=new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8,10),+tm[3],+tm[4]);if(end<=start)end=new Date(end.getTime()+864e5)}
+  const f=x=>x.getFullYear()+pad(x.getMonth()+1)+pad(x.getDate())+"T"+pad(x.getHours())+pad(x.getMinutes())+"00";
+  when="DTSTART;TZID=Europe/Warsaw:"+f(start)+"\r\nDTEND;TZID=Europe/Warsaw:"+f(end)}
+ else{const n=new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8,10)+1);when="DTSTART;VALUE=DATE:"+d+"\r\nDTEND;VALUE=DATE:"+n.getFullYear()+pad(n.getMonth()+1)+pad(n.getDate())}
+ const desc=[r.lineup?"Line-up: "+r.lineup:"",r.entry?"Tax: "+r.entry:"",r.description||"",eventUrl(k)].filter(Boolean).join("\n");
+ return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Przystanek Duzy Pokoj//PL","CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT",
+  "UID:"+k+"-"+(r.id||"x")+"-"+r._src+"@przystanekduzypokoj","DTSTAMP:"+new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z",when,
+  "SUMMARY:"+esc(r.title),"LOCATION:"+esc(VENUE_ADDR),"DESCRIPTION:"+esc(desc),"URL:"+eventUrl(k),"END:VEVENT","END:VCALENDAR"].join("\r\n")}
+document.getElementById("evm-cal").onclick=()=>{if(!evmCur)return;
+ const blob=new Blob([icsFor(evmCur)],{type:"text/calendar;charset=utf-8"}),a=document.createElement("a");
+ a.href=URL.createObjectURL(blob);a.download=evmCur.title.replace(/[^\p{L}\p{N}]+/gu,"-").replace(/^-|-$/g,"").toLowerCase()+".ics";
+ document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)};
+document.getElementById("evm-share").onclick=async()=>{if(!evmCur)return;const b=document.getElementById("evm-share");
+ const k=String(evmCur.event_date).slice(0,10),url=eventUrl(k),text=evmCur.title+" · "+fmt(k)+" · Przystanek Duży Pokój";
+ try{if(navigator.share){await navigator.share({title:evmCur.title,text,url});return}
+  await navigator.clipboard.writeText(url);b.textContent="Link skopiowany ✓"}
+ catch(e){if(e&&e.name==="AbortError")return;prompt("Skopiuj link do wydarzenia:",url)}};
+// otwarcie wydarzenia z linku (#wydarzenie/RRRR-MM-DD), gdy dane są już wczytane
+function openFromHash(){const m=location.hash.match(/^#wydarzenie\/(\d{4}-\d{2}-\d{2})$/);if(m&&eventByDate(m[1]))openEvent(m[1])}
+addEventListener("hashchange",openFromHash);
 async function loadEvents(keep){
  if(DB_ON){try{const x=await fetch(SUPABASE_URL+"/rest/v1/r4b4n_events?select=*&order=event_date.asc",{headers:HDR});
   if(x.ok){const rows=await x.json();EV={};EVID={};EVD={};rows.forEach(r=>{const k=String(r.event_date).slice(0,10);EV[k]=r.title;EVID[k]=r.id;EVD[k]=r})}}catch(e){console.error("r4b4n_events:",e)}}
  if(!keep||!EV[picked])pickFirst();
  drawE();
  // wydarzenia r4b4n blokują też kalendarz rezerwacji
- try{if(sel&&EV[sel]){sel=null;showSel()}draw();list();drawV()}catch(e){}}
+ try{if(sel&&EV[sel]){sel=null;showSel()}draw();list();drawV()}catch(e){}
+ try{openFromHash()}catch(e){}}
 pickFirst();drawE();
 // rezerwacje
 // Odwiedzający wysyła PROŚBĘ o rezerwację: trafia ona do bazy jako "oczekuje" i e-mailem (EmailJS) na skrzynkę sali.
@@ -219,7 +259,7 @@ $("send").onclick=async()=>{const g=id=>$(id).value.trim(),msg=$("msg");
   try{await sendMail({subject:"Rezerwacja – "+fmtD(r.date)+" – "+r.title,date:fmtD(r.date),title:r.title,email:r.mail,reply_to:r.mail,phone:r.phone,
    details:r.details||"-",event_type:r.open?"otwarte":"prywatne",public_desc:r.open?r.pub:"-"})}
   catch(e){console.error("powiadomienie e-mail:",e)}   // prośba i tak jest zapisana w panelu administratora
-  msg.textContent="Dziękujemy! Prośba o rezerwację na "+fmtD(r.date)+" została wysłana. Termin zostanie potwierdzony przez właściciela, odpowiemy na podany e-mail.";
+  msg.textContent="Dziękujemy! Prośba o rezerwację na "+fmtD(r.date)+" została wysłana. Termin zostanie potwierdzony przez właściciela – odpowiemy na podany e-mail zwykle w ciągu 24 h.";
   sel=null;showSel();["f-title","f-mail","f-phone","f-note","f-pub"].forEach(i=>$(i).value="");$("f-open").checked=false;$("f-pub-wrap").hidden=true;
   await loadAdmin();draw();list();
  }catch(e){console.error("reservation:",e);msg.textContent="Nie udało się wysłać prośby ("+e.message+"). Spróbuj ponownie za chwilę albo zadzwoń: 607 415 412."}
@@ -325,9 +365,12 @@ function drawV(){
   const h=document.createElement("h3");h.textContent=r.title;
   body.append(d,h);
   if(r.description){const t=document.createElement("p");t.className="vdesc";t.textContent=r.description;body.append(t)}
-  if(r._r4){const t=document.createElement("p");t.className="vtag";t.textContent="r4b4n";body.insertBefore(t,body.firstChild);
-   const a=document.createElement("button");a.type="button";a.className="btn";a.textContent="Szczegóły ↗";a.onclick=()=>openEvent(k);body.append(a)}
-  if(r.fb_url){const a=document.createElement("a");a.className="btn";a.href=r.fb_url;a.target="_blank";a.rel="noopener";a.textContent="Wydarzenie na Facebooku ↗";body.append(a)}
+  if(r._r4){const t=document.createElement("p");t.className="vtag";t.textContent="r4b4n";body.insertBefore(t,body.firstChild)}
+  const lk=document.createElement("p");lk.className="vlinks";
+  const a=document.createElement("button");a.type="button";a.className="btn";a.textContent="Szczegóły ↗";a.onclick=()=>openEvent(k);lk.append(a);
+  ph.classList.add("click");ph.onclick=()=>openEvent(k);
+  body.append(lk);
+  if(r.fb_url){const f=document.createElement("a");f.className="btn";f.href=r.fb_url;f.target="_blank";f.rel="noopener";f.textContent="Facebook ↗";lk.append(f)}
   if(isAdm&&!r._r4){const act=document.createElement("p");act.className="vadm";
    const e=document.createElement("button");e.className="btn";e.textContent="Edytuj";e.onclick=()=>editVenue(r);
    const x=document.createElement("button");x.className="btn";x.textContent="Usuń";x.onclick=()=>delVenue(r);act.append(e,x);
@@ -339,7 +382,8 @@ async function loadVenue(){
  try{const x=await fetch(SUPABASE_URL+"/rest/v1/venue_events?select=*&order=event_date.asc",{headers:HDR});
   if(x.ok){VROWS=await x.json();VEV={};VROWS.forEach(r=>{VEV[String(r.event_date).slice(0,10)]=r.title})}}
  catch(e){console.error("venue_events:",e)}
- drawV();try{if(sel&&VEV[sel]){sel=null;showSel()}draw();list()}catch(e){}}
+ drawV();try{if(sel&&VEV[sel]){sel=null;showSel()}draw();list()}catch(e){}
+ try{openFromHash()}catch(e){}}
 function resetVenueForm(){vEditId=null;Object.values(VF).forEach(i=>$(i).value="");$("vposter").value="";
  $("vadd").textContent="Dodaj wydarzenie ↗";$("vcancel").hidden=true;$("vform-h").textContent="Dodaj wydarzenie (panel administratora)"}
 function editVenue(r){vEditId=r.id;Object.entries(VF).forEach(([k,i])=>$(i).value=(k==="date"?r.event_date:r[k])||"");
@@ -400,13 +444,13 @@ loadVenue();
 let guestPreview=false;try{guestPreview=sessionStorage.getItem("pdp_preview")==="1"}catch(e){}
 function isAdmin(){try{return !!adminTok&&!guestPreview}catch(e){return false}}
 const abar=document.createElement("div");abar.className="abar";abar.hidden=true;
-abar.innerHTML='<span class="abar-t"></span><button type="button" class="btn"></button>';
+abar.innerHTML='<span class="abar-t"></span><button type="button" class="btn abar-tog"></button>';
 document.body.appendChild(abar);
 function updAdminBar(){let on=false;try{on=!!adminTok}catch(e){}
  abar.hidden=!on;document.body.classList.toggle("preview",on&&guestPreview);
  abar.querySelector(".abar-t").textContent=guestPreview?"Podgląd jako gość":"Tryb administratora";
- abar.querySelector("button").textContent=guestPreview?"Wróć do panelu":"Podgląd jako gość"}
-abar.querySelector("button").onclick=()=>{guestPreview=!guestPreview;try{sessionStorage.setItem("pdp_preview",guestPreview?"1":"0")}catch(e){}
+ abar.querySelector(".abar-tog").textContent=guestPreview?"Wróć do panelu":"Podgląd jako gość"}
+abar.querySelector(".abar-tog").onclick=()=>{guestPreview=!guestPreview;try{sessionStorage.setItem("pdp_preview",guestPreview?"1":"0")}catch(e){}
  list();drawE();drawV()};
 updAdminBar();
 
@@ -440,3 +484,29 @@ updAdminBar();
  main.addEventListener("touchstart",e=>{x0=e.touches[0].clientX},{passive:true});
  main.addEventListener("touchend",e=>{if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>45)show(cur+(dx<0?1:-1));x0=null},{passive:true});
 })();
+
+// ===== Licznik odwiedzin (anonimowy, bez cookies) – widoczny tylko w pasku administratora =====
+// Każda zakładka liczy się raz na sesję przeglądarki; wizyty z komputera administratora (zapamiętanego) nie są liczone.
+function trackView(v){
+ try{if(localStorage.getItem("pdp_adm_rt")||sessionStorage.getItem("pdp_adm"))return;
+  const key="pdp_seen_"+v;if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,"1")}catch(e){}
+ if(/^(localhost|127\.)/.test(location.hostname))return;
+ fetch(SUPABASE_URL+"/rest/v1/rpc/track_visit",{method:"POST",headers:HDR,body:JSON.stringify({p_view:v}),keepalive:true}).catch(()=>{})}
+const VIEW_PL={start:"Start",rezerwacje:"Rezerwacje",r4b4n:"r4b4n",prywatnosc:"Prywatność",inne:"inne"};
+async function loadStats(){const box=document.getElementById("abar-stats");if(!box)return;
+ try{const x=await fetch(SUPABASE_URL+"/rest/v1/rpc/visit_stats",{method:"POST",headers:AH(),body:"{}"});
+  if(!x.ok)throw new Error(x.status);const s=(await x.json())[0]||{};
+  box.querySelector(".st-sum").textContent="Odwiedziny: dziś "+s.today+" · 7 dni "+s.last7+" · 30 dni "+s.last30;
+  const det=box.querySelector(".st-det");det.innerHTML="";
+  const days=s.per_day||[],max=Math.max(1,...days.map(d=>d.views));
+  const ch=document.createElement("div");ch.className="st-chart";ch.title="Ostatnie 14 dni";
+  for(let i=13;i>=0;i--){const dd=new Date(Date.now()-i*864e5),k=dd.getFullYear()+"-"+pad(dd.getMonth()+1)+"-"+pad(dd.getDate());
+   const v=(days.find(d=>d.day===k)||{}).views||0,b=document.createElement("i");b.style.height=Math.round(4+40*v/max)+"px";b.title=fmt(k)+": "+v;ch.append(b)}
+  const pv=document.createElement("p");pv.textContent="30 dni wg zakładek: "+Object.entries(s.per_view||{}).sort((a,b)=>b[1]-a[1]).map(([k,v])=>(VIEW_PL[k]||k)+" "+v).join(" · ")+" · łącznie "+s.total;
+  det.append(ch,pv)}
+ catch(e){box.querySelector(".st-sum").textContent="Odwiedziny: brak danych"}}
+(function(){const box=document.createElement("button");box.type="button";box.id="abar-stats";box.className="abar-stats";
+ box.innerHTML='<span class="st-sum">Odwiedziny…</span><span class="st-det"></span>';box.onclick=()=>box.classList.toggle("open");
+ abar.insertBefore(box,abar.firstChild);
+ const upd=updAdminBar;updAdminBar=function(){upd();if(!abar.hidden&&!box.dataset.loaded){box.dataset.loaded="1";loadStats()}if(abar.hidden)delete box.dataset.loaded};
+ updAdminBar()})();

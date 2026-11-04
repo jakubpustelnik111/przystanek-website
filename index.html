@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Montserrat:wght@400;500;600&display=swap">
 <script>try{var t=localStorage.getItem("pdp_theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
-<link rel="stylesheet" href="css/style.css?v=37"></head><body>
+<link rel="stylesheet" href="css/style.css?v=39"></head><body>
 <div class="wrap">
 <header>
  <a class="brand" href="#start" style="text-decoration:none;color:inherit"><img class="logo" src="img/logo-t.png" alt="Logo Przystanek Duży Pokój"><b>Przystanek<br>Duży Pokój</b></a>
@@ -61,6 +61,15 @@
    </ul></div>
  </div>
  <div class="band sala"><h2 style="font-size:20px;margin-bottom:12px">O sali</h2><div class="edit">Przystanek Duży Pokój to klub towarzyski ukryty głęboko w przystanku Kaponiera w Poznaniu. Underground w sercu miasta: miejsce z klimatem, w którym spotykają się ludzie, muzyka i dobra zabawa. Goście oceniają je na 4,9/5 w Google.</div></div>
+ <div class="band opinie" id="opinie">
+  <div class="op-head"><h2 style="font-size:20px">Co mówią goście</h2>
+   <a class="op-score" href="https://www.google.com/maps/search/?api=1&amp;query=Przystanek+Du%C5%BCy+Pok%C3%B3j+Pozna%C5%84" target="_blank" rel="noopener" aria-label="Ocena 4,9 na 5 w Google, zobacz wszystkie opinie"><b>4,9</b><span>/5</span><em>★★★★★</em><small>ponad 50 opinii w Google ↗</small></a></div>
+  <div class="op-list">
+   <blockquote><p>„Fantastycznie klimatyczne miejsce! Przemili i pomocni właściciele. Wynajęłam Przystanek na urodziny…”</p><footer>Aleksandra A. · opinia z Google</footer></blockquote>
+   <blockquote><p>„Wspaniałe miejsce z niepowtarzalnym klimatem. Gorąco polecam każdemu miłośnikowi darta i nie tylko.”</p><footer>Dominika · opinia z Google</footer></blockquote>
+   <blockquote><p>„Świetna atmosfera, super ludzie, każdy znajdzie tu jakiś turniej dla siebie :)”</p><footer>Wojciech · opinia z Google</footer></blockquote>
+  </div>
+ </div>
  <div class="band" id="start-wydarzenia"><h2 style="font-size:20px;margin-bottom:14px">Wydarzenia</h2>
   <div class="vlist" id="vlist"></div>
   <div id="vadm" hidden class="vform"><label id="vform-h">Dodaj wydarzenie (panel administratora)</label>
@@ -107,7 +116,7 @@
    <label for="f-note">Szczegóły rezerwacji</label><textarea id="f-note" rows="4" maxlength="1000" placeholder="Godziny, liczba osób, sprzęt, rodzaj wydarzenia…"></textarea>
    <label class="chk"><input type="checkbox" id="f-open"> Wydarzenie otwarte (opis pojawi się na stronie obok daty)</label>
    <div id="f-pub-wrap" hidden><label for="f-pub">Opis wydarzenia widoczny na stronie</label><textarea id="f-pub" rows="2" maxlength="200" placeholder="np. Techno night – wstęp wolny"></textarea></div>
-   <p><button class="btn" id="send">Zarezerwuj ↗</button></p><div class="msg" id="msg"></div>
+   <p><button class="btn" id="send">Zarezerwuj ↗</button></p><p class="resp">Odpowiadamy zwykle w ciągu 24 h.</p><div class="msg" id="msg"></div>
    <p class="rodo">Administratorem danych podanych w formularzu (tytuł, e-mail, telefon, szczegóły) jest Paweł Rosół, prowadzący Przystanek Duży Pokój. Dane przetwarzamy wyłącznie w celu obsługi prośby o rezerwację i kontaktu w jej sprawie (art. 6 ust. 1 lit. b RODO). Więcej, w tym o Twoich prawach: <a href="#prywatnosc">Polityka prywatności</a>.</p></div>
   </div>
  </div>
@@ -192,7 +201,7 @@
   <h2>5. Twoje prawa</h2>
   <p>Masz prawo do dostępu do swoich danych, ich sprostowania, usunięcia, ograniczenia przetwarzania, przeniesienia oraz wniesienia sprzeciwu. Aby skorzystać z tych praw, napisz na <a href="mailto:przystanekduzypokoj@gmail.com">przystanekduzypokoj@gmail.com</a>. Przysługuje Ci też prawo wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych (ul. Stawki 2, 00-193 Warszawa).</p>
   <h2>6. Pliki cookies i pamięć przeglądarki</h2>
-  <p>Strona nie używa cookies reklamowych ani analitycznych. W pamięci Twojej przeglądarki (localStorage, sessionStorage) zapisujemy tylko wybrany motyw jasny/ciemny oraz – wyłącznie dla administratora – sesję logowania do panelu. Serwery dostawców (np. GitHub, Google Fonts) mogą technicznie rejestrować adres IP przy wyświetlaniu strony.</p>
+  <p>Strona nie używa cookies reklamowych ani analitycznych. Liczymy jedynie anonimowo, ile razy wyświetlono poszczególne zakładki strony – bez cookies i bez zapisywania danych, które pozwalałyby Cię zidentyfikować. W pamięci Twojej przeglądarki (localStorage, sessionStorage) zapisujemy tylko wybrany motyw jasny/ciemny oraz – wyłącznie dla administratora – sesję logowania do panelu. Serwery dostawców (np. GitHub, Google Fonts) mogą technicznie rejestrować adres IP przy wyświetlaniu strony.</p>
   <h2>7. Zmiany</h2>
   <p>Możemy aktualizować tę politykę, np. gdy zmienią się usługi, z których korzystamy. Aktualna wersja jest zawsze dostępna na tej stronie.</p>
   <p style="margin-top:22px"><a class="btn" href="#rezerwacje" style="text-decoration:none;display:inline-block">← Wróć do rezerwacji</a></p>
@@ -217,9 +226,11 @@
    <div class="evm-links">
     <a class="btn" id="evm-post" href="#" target="_blank" rel="noopener" hidden>Zobacz post na Instagramie ↗</a>
     <a class="btn" id="evm-ig" href="https://www.instagram.com/_r4b4n_/" target="_blank" rel="noopener">Instagram r4b4n ↗</a>
+    <button type="button" class="btn" id="evm-cal">Dodaj do kalendarza</button>
+    <button type="button" class="btn" id="evm-share">Udostępnij ↗</button>
    </div>
    <p class="evm-where">Przystanek Duży Pokój · Rondo Kaponiera, Poznań · <a href="https://www.google.com/maps/search/?api=1&amp;query=Przystanek+Du%C5%BCy+Pok%C3%B3j+Poznań" target="_blank" rel="noopener">trasa ↗</a></p>
   </div>
  </div>
 </div>
-<script src="js/main.js?v=39"></script></body></html>
+<script src="js/main.js?v=41"></script></body></html>
