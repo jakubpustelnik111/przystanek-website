@@ -449,3 +449,12 @@ nav a:not(.on):hover{background:var(--navy);color:#fff}
 :root[data-theme="dark"] #v-start .tag,:root[data-theme="dark"] #v-rezerwacje .tag{background:#2a4280;color:#edf0f7}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]) #v-start .tag,:root:not([data-theme="light"]) #v-rezerwacje .tag{background:#2a4280;color:#edf0f7}}
 .vcard:not(.r4) .vposter.noimg span{color:#9fb6ee}
+/* Rezerwacje: najważniejsze informacje pod kalendarzem */
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.facts>div{padding:10px 12px;border-left:5px solid var(--acc);background:var(--card)}
+.facts>div.k{border-left-color:var(--kult)}
+.facts b{display:block;font:800 14px/1.2 Unbounded,sans-serif;margin-bottom:3px}
+.facts span{font-size:12.5px;line-height:1.4}
+.facts a{color:inherit;text-decoration:underline}
+@media(max-width:340px){.facts{grid-template-columns:1fr}}
+@media(max-width:600px){.facts>div{padding:8px 10px}.facts b{font-size:13px}.facts span{font-size:12px}}
