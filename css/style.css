@@ -458,3 +458,13 @@ nav a:not(.on):hover{background:var(--navy);color:#fff}
 .facts a{color:inherit;text-decoration:underline}
 @media(max-width:340px){.facts{grid-template-columns:1fr}}
 @media(max-width:600px){.facts>div{padding:8px 10px}.facts b{font-size:13px}.facts span{font-size:12px}}
+/* Panel: oznaczanie terminu jako zajętego */
+.admblk{margin-top:14px;padding:12px;border:1.5px dashed var(--kult);background:var(--card)}
+.admblk .ab-h{margin:0 0 8px;font:800 12px/1.2 Montserrat,Arial,sans-serif;text-transform:uppercase;letter-spacing:.06em}
+.admblk .ab-i{margin:6px 0;font-size:13px}
+.ab-f{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
+.ab-f input,.ab-f select{margin:0}
+@media(max-width:700px){.ab-f{grid-template-columns:1fr}}
+.cal button.busy:not(:disabled){cursor:pointer;outline:2px dashed var(--kult);outline-offset:-4px}
+.cal button.busy.sel{outline:3px solid var(--kult);outline-offset:-3px}
+.ab-f select{font:inherit;font-size:14px;padding:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:0}

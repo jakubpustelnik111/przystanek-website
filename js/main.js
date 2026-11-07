@@ -138,12 +138,12 @@ let sel=todayKey;
 const $=id=>document.getElementById(id);
 function showSel(){
  $("chosen").textContent="Wybrana data: "+(sel?fmtD(sel)+(sel===todayKey?" (dziś)":""):"brak");
- $("subj").textContent=sel?"Temat: Rezerwacja – "+fmtD(sel):""}
+ $("subj").textContent=sel?"Temat: Rezerwacja – "+fmtD(sel):"";try{drawAdmBlk()}catch(e){}}
 async function loadBusy(){
  try{const x=await fetch(SUPABASE_URL+"/rest/v1/rpc/busy_dates",{method:"POST",headers:HDR,body:"{}"});
   if(!x.ok)throw new Error("HTTP "+x.status+" "+(await x.text()).slice(0,160));
   busy=new Map((await x.json()).map(r=>[String(r.event_date).slice(0,10),r.public_desc||""]));
-  if(sel&&(busy.has(sel)||EV[sel]||VEV[sel])){sel=null}}
+  if(sel&&((busy.has(sel)&&!isAdmin())||EV[sel]||VEV[sel])){sel=null}}
  catch(e){console.error("busy_dates:",e);$("msg").textContent="Nie udało się pobrać zajętych terminów ("+e.message+"). Odśwież stronę."}
  await loadAdmin();showSel();draw();list()}
 function draw(){const cal=$("cal");cal.innerHTML="";
@@ -153,7 +153,8 @@ function draw(){const cal=$("cal");cal.innerHTML="";
  for(let i=0;i<off;i++)cal.appendChild(document.createElement("div"));
  for(let d=1;d<=n;d++){const k=iso(y,m,d),b=document.createElement("button");b.textContent=d;
   const isBusy=busy.has(k)||!!VEV[k],isR4=!isBusy&&!!EV[k];
-  if(k<todayKey||isBusy||isR4)b.disabled=true;if(isBusy){b.classList.add("busy");b.title=VEV[k]||busy.get(k)||"Zajęty"}
+  const admFree=isAdmin()&&k>=todayKey&&busy.has(k)&&!VEV[k];
+  if(k<todayKey||(isBusy&&!admFree)||isR4)b.disabled=true;if(isBusy){b.classList.add("busy");b.title=VEV[k]||busy.get(k)||"Zajęty"}
   if(isR4){b.classList.add(k>=todayKey?"r4":"r4past");b.title="r4b4n: "+EV[k]}
   if(k===todayKey)b.classList.add("today");if(k===sel)b.classList.add("sel");
   b.onclick=()=>{sel=k;showSel();draw()};cal.appendChild(b)}}
@@ -192,6 +193,7 @@ function list(){const l=$("list");l.innerHTML="";
  const adm=isAdmin()&&adminRows;
  $("admout").hidden=!adm;
  $("adm").hidden=!!adm||$("adm").dataset.open!=="1";
+try{drawAdmBlk()}catch(e){}
  $("list-h").textContent=adm?"Rezerwacje (panel administratora)":"Zajęte terminy";
  if(adm){
   if(!adminRows.length){l.textContent="Brak rezerwacji.";return}
@@ -213,6 +215,29 @@ function list(){const l=$("list");l.innerHTML="";
  ds.forEach(k=>{const d=document.createElement("div");const r4=!busy.has(k)&&!VEV[k]&&!!EV[k],desc=VEV[k]?"Wydarzenie: "+VEV[k]:r4?"r4b4n: "+EV[k]:busy.get(k);
   const b=document.createElement("b");b.textContent=fmtD(k);d.append(b,document.createTextNode(" · "+(desc||"zajęty")));
   if(r4)d.className="r4";else if(desc)d.className="open";l.appendChild(d)})}
+// Panel: szybkie oznaczanie terminu jako zajętego (wydarzenia ustalone bezpośrednio, np. przez Pawła lub Dominika)
+const SALA_MAIL="przystanekduzypokoj@gmail.com";
+function drawAdmBlk(){const box=$("admblk");if(!box)return;
+ const adm=isAdmin()&&adminRows;box.hidden=!adm;if(!adm){box.innerHTML="";return}
+ box.innerHTML="";const h=document.createElement("p");h.className="ab-h";h.textContent="Panel · "+(sel?fmtD(sel):"wybierz datę w kalendarzu");box.append(h);
+ if(!sel)return;
+ const row=adminRows.find(r=>String(r.event_date).slice(0,10)===sel&&r.status==="confirmed");
+ if(VEV[sel]||EV[sel]){const p=document.createElement("p");p.className="ab-i";p.textContent="Ten dzień zajmuje wydarzenie "+(VEV[sel]?"sali: "+VEV[sel]:"r4b4n: "+EV[sel])+". Zmienisz je w sekcji Wydarzenia albo w kalendarzu r4b4n.";box.append(p);return}
+ if(row){const p=document.createElement("p");p.className="ab-i";p.textContent="Zajęty: "+row.title+(row.note?" · "+row.note:"");
+  box.append(p,mkBtn("Zwolnij termin",()=>removeRes(row)));return}
+ const pend=adminRows.filter(r=>String(r.event_date).slice(0,10)===sel&&r.status==="pending").length;
+ const t=document.createElement("input");t.id="ab-title";t.maxLength=120;t.placeholder="Co się dzieje? (np. Urodziny, Koncert) – opcjonalnie";
+ const s=document.createElement("select");s.id="ab-who";["Ustalone przez: Paweł","Ustalone przez: Dominik","Ustalone przez: Jakub","Inne"].forEach(v=>{const o=document.createElement("option");o.textContent=v;s.append(o)});
+ const b=mkBtn("Oznacz jako zajęty",()=>blockDate(t.value.trim(),s.value));b.classList.add("btn-main");
+ const w=document.createElement("div");w.className="ab-f";w.append(t,s,b);box.append(w);
+ if(pend){const p=document.createElement("p");p.className="ab-i";p.textContent="Uwaga: na ten dzień czeka "+pend+" prośb"+(pend===1?"a":"y")+" o rezerwację (lista na dole).";box.append(p)}}
+async function blockDate(title,who){if(!sel)return;
+ const x=await fetch(SUPABASE_URL+"/rest/v1/reservations",{method:"POST",headers:{...AH(),"Prefer":"return=minimal"},
+  body:JSON.stringify({event_date:sel,title:title||"Zajęte",email:SALA_MAIL,note:who==="Inne"?null:who,status:"confirmed",is_public:false,public_desc:null})});
+ if(x.status===401||x.status===403){logoutAdmin();alert("Sesja wygasła. Zaloguj się ponownie.");return}
+ if(x.status===409){alert("Ten termin jest już zajęty.");return}
+ if(!x.ok){alert("Nie udało się zapisać (HTTP "+x.status+"). Spróbuj ponownie.");return}
+ await loadBusy()}
 // Logowanie administratora: formularz nie jest częścią strony – pojawia się tylko pod adresem …/#admin
 // (strona bez pól hasła nie wygląda dla filtrów operatorów jak strona wyłudzająca dane).
 function openAdminLogin(){const a=$("adm");
