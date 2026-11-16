@@ -126,7 +126,7 @@ const DB_ON=!!(SUPABASE_URL&&SUPABASE_KEY);
 const HDR={"apikey":SUPABASE_KEY,"Content-Type":"application/json"};
 if(SUPABASE_KEY.startsWith("eyJ"))HDR.Authorization="Bearer "+SUPABASE_KEY;
 // EmailJS: powiadomienie o nowej prośbie (szablon: To = skrzynka sali, Reply-To = {{email}}, Subject = {{subject}})
-const EMAILJS={service:"service_o0s3pj2",template:"template_n1rdne8",key:"N_8Z4bL6aFTH875RU"};
+const EMAILJS={service:"service_o0s3pj2",template:"template_n1rdne8",guest:"template_skjgy2s",key:"N_8Z4bL6aFTH875RU"};
 const MN=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
 const iso=(a,b,c)=>a+"-"+String(b+1).padStart(2,"0")+"-"+String(c).padStart(2,"0");
 const fmtD=k=>+String(k).slice(8,10)+"."+String(k).slice(5,7)+"."+String(k).slice(0,4);
@@ -230,7 +230,7 @@ function sentMsg(msg,date,code){msg.innerHTML="";
  const a=document.createElement("a");a.href="#status/"+code;a.textContent="Sprawdź status ↗";
  const cp=document.createElement("button");cp.type="button";cp.className="btn";cp.textContent="Kopiuj link";
  cp.onclick=async()=>{try{await navigator.clipboard.writeText(statusUrl(code));cp.textContent="Skopiowano ✓"}catch(e){prompt("Skopiuj link do statusu:",statusUrl(code))}};
- const n=document.createElement("small");n.textContent="Zapisz kod albo link – pod nim sprawdzisz, czy rezerwacja jest potwierdzona.";
+ const n=document.createElement("small");n.textContent="Kod i link wysłaliśmy też na Twój e-mail (sprawdź też folder Spam). Pod linkiem sprawdzisz, czy rezerwacja jest potwierdzona.";
  box.append(l,c,a,cp,n);msg.append(p,box)}
 const ST_TXT={pending:["Oczekuje na potwierdzenie","Prośba do nas dotarła. Odpowiadamy zwykle w ciągu 24 h – zajrzyj tu ponownie albo czekaj na wiadomość."],
  confirmed:["Potwierdzona ✓","Termin jest Twój. Szczegóły (godziny, zaliczka, przygotowanie sali) ustalimy mailowo lub telefonicznie."],
@@ -297,9 +297,9 @@ async function adminLogin(){
  catch(e){msg.textContent="Nie udało się zalogować. Sprawdź e-mail i hasło."}
  finally{btn.disabled=false}}
 $("f-open").onchange=()=>{$("f-pub-wrap").hidden=!$("f-open").checked};
-async function sendMail(p){
+async function sendMail(p,tpl){
  const x=await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({service_id:EMAILJS.service,template_id:EMAILJS.template,user_id:EMAILJS.key,template_params:p})});
+  body:JSON.stringify({service_id:EMAILJS.service,template_id:tpl||EMAILJS.template,user_id:EMAILJS.key,template_params:p})});
  if(!x.ok)throw new Error("EmailJS "+x.status+" "+(await x.text()).slice(0,120))}
 const FORM_T0=Date.now();
 // komunikaty dla błędów zgłaszanych przez bazę (funkcja reservations_guard)
@@ -329,6 +329,9 @@ $("send").onclick=async()=>{const g=id=>$(id).value.trim(),msg=$("msg");
   try{await sendMail({subject:"Rezerwacja – "+fmtD(r.date)+" – "+r.title,date:fmtD(r.date),title:r.title,email:r.mail,reply_to:r.mail,phone:r.phone,
    details:(r.details||"-")+"\n\nKod rezerwacji: "+code+" · status: "+statusUrl(code),event_type:r.open?"otwarte":"prywatne",public_desc:r.open?r.pub:"-"})}
   catch(e){console.error("powiadomienie e-mail:",e)}   // prośba i tak jest zapisana w panelu administratora
+  // potwierdzenie dla gościa z kodem i linkiem do statusu
+  if(EMAILJS.guest)try{await sendMail({to_email:r.mail,date:fmtD(r.date),title:r.title,code,status_url:statusUrl(code)},EMAILJS.guest)}
+  catch(e){console.error("mail do gościa:",e)}
   sentMsg(msg,r.date,code);
   sel=null;showSel();["f-title","f-mail","f-phone","f-note","f-pub"].forEach(i=>$(i).value="");$("f-open").checked=false;$("f-pub-wrap").hidden=true;
   await loadAdmin();draw();list();
