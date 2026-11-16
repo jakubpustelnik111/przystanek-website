@@ -1,6 +1,6 @@
 // zakładki strony (adres #nazwa); "prywatnosc" nie ma pozycji w menu, link jest w stopce i pod formularzem
 const V=["start","rezerwacje","r4b4n","prywatnosc"];
-function show(){let h=(location.hash||"#start").slice(1);if(h==="admin"){h="rezerwacje";setTimeout(()=>{try{openAdminLogin()}catch(e){}},300)}if(h.startsWith("status/")){const c=h.slice(7);h="rezerwacje";setTimeout(()=>{try{showStatus(c)}catch(e){}},0)}if(h.startsWith("wydarzenie/")){if(!document.querySelector("section.view.on"))h="start";else return}if(!V.includes(h))h="start";setTimeout(()=>trackView(h),0);
+function show(){let h=(location.hash||"#start").slice(1);if(h==="admin"){h="rezerwacje";setTimeout(()=>{try{openAdminLogin()}catch(e){}},300)}if(h.startsWith("wydarzenie/")){if(!document.querySelector("section.view.on"))h="start";else return}if(!V.includes(h))h="start";setTimeout(()=>trackView(h),0);
  V.forEach(v=>{document.getElementById("v-"+v).classList.toggle("on",v===h)});
  document.querySelectorAll("nav a").forEach(a=>a.classList.toggle("on",a.dataset.v===h));document.body.classList.toggle("g",h==="r4b4n");window.scrollTo(0,0)}
 addEventListener("hashchange",show);show();
@@ -126,7 +126,7 @@ const DB_ON=!!(SUPABASE_URL&&SUPABASE_KEY);
 const HDR={"apikey":SUPABASE_KEY,"Content-Type":"application/json"};
 if(SUPABASE_KEY.startsWith("eyJ"))HDR.Authorization="Bearer "+SUPABASE_KEY;
 // EmailJS: powiadomienie o nowej prośbie (szablon: To = skrzynka sali, Reply-To = {{email}}, Subject = {{subject}})
-const EMAILJS={service:"service_o0s3pj2",template:"template_n1rdne8",guest:"template_skjgy2s",key:"N_8Z4bL6aFTH875RU"};
+const EMAILJS={service:"service_o0s3pj2",template:"template_n1rdne8",key:"N_8Z4bL6aFTH875RU"};
 const MN=["Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec","Sierpień","Wrzesień","Październik","Listopad","Grudzień"];
 const iso=(a,b,c)=>a+"-"+String(b+1).padStart(2,"0")+"-"+String(c).padStart(2,"0");
 const fmtD=k=>+String(k).slice(8,10)+"."+String(k).slice(5,7)+"."+String(k).slice(0,4);
@@ -167,7 +167,7 @@ const AH=()=>({"apikey":SUPABASE_KEY,"Content-Type":"application/json","Authoriz
 function logoutAdmin(){adminTok=null;adminRows=null;try{sessionStorage.removeItem("pdp_adm")}catch(e){}list();drawE();try{drawV()}catch(e){}}
 async function loadAdmin(){
  if(!adminTok){adminRows=null;return}
- try{const x=await fetch(SUPABASE_URL+"/rest/v1/reservations?select=id,event_date,title,email,phone,note,status,is_public,public_desc,code,decided_at&order=event_date.asc",{headers:AH()});
+ try{const x=await fetch(SUPABASE_URL+"/rest/v1/reservations?select=id,event_date,title,email,phone,note,status,is_public,public_desc&order=event_date.asc",{headers:AH()});
   if(x.status===401||x.status===403){logoutAdmin();return}
   if(!x.ok)throw new Error("HTTP "+x.status);
   adminRows=await x.json()}
@@ -182,11 +182,8 @@ async function removeRes(r){
  if(!confirm("Usunąć "+(r.status==="confirmed"?"termin":"prośbę")+" "+fmtD(r.event_date)+" ("+r.title+")?"))return;
  if(await adminCall("id=eq."+r.id,"DELETE"))await loadBusy()}
 async function confirmRes(r){
- if(!confirm("Potwierdzić rezerwację "+fmtD(r.event_date)+" ("+r.title+")? Termin pojawi się na stronie jako zajęty, a gość zobaczy status \"potwierdzona\"."))return;
- if(await adminCall("id=eq."+r.id,"PATCH",{status:"confirmed",decided_at:new Date().toISOString()}))await loadBusy()}
-async function rejectRes(r){
- if(!confirm("Odrzucić prośbę "+fmtD(r.event_date)+" ("+r.title+")? Gość zobaczy status \"odrzucona\". Termin zostaje wolny."))return;
- if(await adminCall("id=eq."+r.id,"PATCH",{status:"rejected",decided_at:new Date().toISOString()}))await loadBusy()}
+ if(!confirm("Potwierdzić rezerwację "+fmtD(r.event_date)+" ("+r.title+")? Termin pojawi się na stronie jako zajęty."))return;
+ if(await adminCall("id=eq."+r.id,"PATCH",{status:"confirmed"}))await loadBusy()}
 async function editDesc(r){
  const v=prompt("Opis widoczny na stronie obok daty (zostaw puste, jeśli wydarzenie jest prywatne):",r.public_desc||"");
  if(v===null)return;const t=v.trim().slice(0,200);
@@ -200,17 +197,17 @@ try{drawAdmBlk()}catch(e){}
  $("list-h").textContent=adm?"Rezerwacje (panel administratora)":"Zajęte terminy";
  if(adm){
   if(!adminRows.length){l.textContent="Brak rezerwacji.";return}
-  const ord=r=>(r.status==="pending"?"0":r.status==="rejected"?"2":"1")+r.event_date;
+  const ord=r=>(r.status==="pending"?"0":"1")+r.event_date;
   [...adminRows].sort((a,b)=>ord(a)<ord(b)?-1:1).forEach(r=>{
-   const d=document.createElement("div");d.className="row"+(r.status==="pending"?" pend":r.status==="rejected"?" rej":"");
+   const d=document.createElement("div");d.className="row"+(r.status==="pending"?" pend":"");
    const t=document.createElement("div");
    const h=document.createElement("b");h.textContent=fmtD(r.event_date)+" · "+r.title;
-   const st=document.createElement("span");st.className="st";st.textContent=r.status==="pending"?"oczekuje":r.status==="rejected"?"odrzucona":(r.is_public?"potwierdzona · otwarte":"potwierdzona · prywatne");
+   const st=document.createElement("span");st.className="st";st.textContent=r.status==="pending"?"oczekuje":(r.is_public?"potwierdzona · otwarte":"potwierdzona · prywatne");
    const info=document.createElement("small");
-   info.textContent=[r.code?"Kod: "+r.code:"",r.email,r.phone,r.note,r.public_desc?"Opis publiczny: "+r.public_desc:""].filter(Boolean).join(" · ");
+   info.textContent=[r.email,r.phone,r.note,r.public_desc?"Opis publiczny: "+r.public_desc:""].filter(Boolean).join(" · ");
    t.append(h,st,info);
    const a=document.createElement("div");a.className="acts";
-   if(r.status==="pending")a.append(mkBtn("Potwierdź",()=>confirmRes(r)),mkBtn("Odrzuć",()=>rejectRes(r)));
+   if(r.status==="pending")a.append(mkBtn("Potwierdź",()=>confirmRes(r)));
    a.append(mkBtn("Opis",()=>editDesc(r)),mkBtn("Usuń",()=>removeRes(r)));
    d.append(t,a);l.appendChild(d)});return}
  const ds=[...new Set([...busy.keys(),...Object.keys(EV),...Object.keys(VEV)])].filter(k=>k>=todayKey).sort();
@@ -218,41 +215,6 @@ try{drawAdmBlk()}catch(e){}
  ds.forEach(k=>{const d=document.createElement("div");const r4=!busy.has(k)&&!VEV[k]&&!!EV[k],desc=VEV[k]?"Wydarzenie: "+VEV[k]:r4?"r4b4n: "+EV[k]:busy.get(k);
   const b=document.createElement("b");b.textContent=fmtD(k);d.append(b,document.createTextNode(" · "+(desc||"zajęty")));
   if(r4)d.className="r4";else if(desc)d.className="open";l.appendChild(d)})}
-// Status rezerwacji: gość dostaje kod i link #status/KOD, pod którym sprawdza, czy prośba jest potwierdzona
-const CODE_ABC="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-function genCode(){const a=new Uint8Array(10);crypto.getRandomValues(a);return [...a].map(x=>CODE_ABC[x%CODE_ABC.length]).join("")}
-function statusUrl(c){return location.origin+location.pathname+"#status/"+c}
-function sentMsg(msg,date,code){msg.innerHTML="";
- const p=document.createElement("p");p.textContent="Dziękujemy! Prośba o rezerwację na "+fmtD(date)+" została wysłana. Odpowiemy zwykle w ciągu 24 h.";
- const box=document.createElement("div");box.className="codebox";
- const l=document.createElement("span");l.textContent="Twój kod rezerwacji:";
- const c=document.createElement("b");c.textContent=code;
- const a=document.createElement("a");a.href="#status/"+code;a.textContent="Sprawdź status ↗";
- const cp=document.createElement("button");cp.type="button";cp.className="btn";cp.textContent="Kopiuj link";
- cp.onclick=async()=>{try{await navigator.clipboard.writeText(statusUrl(code));cp.textContent="Skopiowano ✓"}catch(e){prompt("Skopiuj link do statusu:",statusUrl(code))}};
- const n=document.createElement("small");n.textContent="Kod i link wysłaliśmy też na Twój e-mail (sprawdź też folder Spam). Pod linkiem sprawdzisz, czy rezerwacja jest potwierdzona.";
- box.append(l,c,a,cp,n);msg.append(p,box)}
-const ST_TXT={pending:["Oczekuje na potwierdzenie","Prośba do nas dotarła. Odpowiadamy zwykle w ciągu 24 h – zajrzyj tu ponownie albo czekaj na wiadomość."],
- confirmed:["Potwierdzona ✓","Termin jest Twój. Szczegóły (godziny, zaliczka, przygotowanie sali) ustalimy mailowo lub telefonicznie."],
- rejected:["Nie możemy przyjąć tej rezerwacji","Niestety ten termin nie jest dostępny. Wybierz inną datę w kalendarzu albo zadzwoń: 607 415 412."]};
-async function showStatus(raw){const box=$("stbox");if(!box)return;const code=String(raw||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
- box.hidden=false;box.className="stbox";box.textContent="Sprawdzam status…";
- let row=null;
- try{if(/^[A-Z2-9]{8,16}$/.test(code)){const x=await fetch(SUPABASE_URL+"/rest/v1/rpc/reservation_status",{method:"POST",headers:{...HDR,"Content-Type":"application/json"},body:JSON.stringify({p_code:code})});
-  if(!x.ok)throw new Error("HTTP "+x.status);row=(await x.json())[0]||null}}
- catch(e){box.textContent="Nie udało się sprawdzić statusu. Spróbuj za chwilę albo zadzwoń: 607 415 412.";return}
- box.innerHTML="";
- const k=document.createElement("p");k.className="st-k";k.textContent="Status rezerwacji · kod "+(code||"–");
- const h=document.createElement("h2");const p=document.createElement("p");
- if(!row){box.classList.add("none");h.textContent="Nie znaleźliśmy rezerwacji";p.textContent="Sprawdź, czy kod jest wpisany dokładnie. Jeśli prośba była wysłana dawno, mogła zostać usunięta – zadzwoń: 607 415 412."}
- else{const t=ST_TXT[row.status]||ST_TXT.pending;box.classList.add(row.status);h.textContent=t[0];
-  const d=document.createElement("p");d.className="st-d";d.textContent=fmtD(row.event_date)+" · "+row.title;p.textContent=t[1];box.append(k,h,d,p);
-  const cl=mkBtn("Zamknij",()=>{box.hidden=true;if(location.hash.startsWith("#status/"))history.replaceState(null,"","#rezerwacje")});box.append(cl);
-  box.scrollIntoView({behavior:"smooth",block:"start"});return}
- box.append(k,h,p,mkBtn("Zamknij",()=>{box.hidden=true;if(location.hash.startsWith("#status/"))history.replaceState(null,"","#rezerwacje")}));box.scrollIntoView({behavior:"smooth",block:"start"})}
-(function(){const go=$("st-go"),inp=$("st-code");if(!go)return;
- const run=()=>{const c=inp.value.trim().toUpperCase().replace(/[^A-Z0-9]/g,"");if(!c)return;history.replaceState(null,"","#status/"+c);showStatus(c)};
- go.onclick=run;inp.addEventListener("keydown",e=>{if(e.key==="Enter")run()})})();
 // Panel: szybkie oznaczanie terminu jako zajętego (wydarzenia ustalone bezpośrednio, np. przez Pawła lub Dominika)
 const SALA_MAIL="przystanekduzypokoj@gmail.com";
 function drawAdmBlk(){const box=$("admblk");if(!box)return;
@@ -297,9 +259,9 @@ async function adminLogin(){
  catch(e){msg.textContent="Nie udało się zalogować. Sprawdź e-mail i hasło."}
  finally{btn.disabled=false}}
 $("f-open").onchange=()=>{$("f-pub-wrap").hidden=!$("f-open").checked};
-async function sendMail(p,tpl){
+async function sendMail(p){
  const x=await fetch("https://api.emailjs.com/api/v1.0/email/send",{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({service_id:EMAILJS.service,template_id:tpl||EMAILJS.template,user_id:EMAILJS.key,template_params:p})});
+  body:JSON.stringify({service_id:EMAILJS.service,template_id:EMAILJS.template,user_id:EMAILJS.key,template_params:p})});
  if(!x.ok)throw new Error("EmailJS "+x.status+" "+(await x.text()).slice(0,120))}
 const FORM_T0=Date.now();
 // komunikaty dla błędów zgłaszanych przez bazę (funkcja reservations_guard)
@@ -318,21 +280,17 @@ $("send").onclick=async()=>{const g=id=>$(id).value.trim(),msg=$("msg");
  if(!/^\S+@\S+\.\S+$/.test(r.mail)){msg.textContent="Sprawdź adres e-mail.";return}
  if(r.phone.replace(/\D/g,"").length<6){msg.textContent="Podaj poprawny numer telefonu.";return}
  if(r.open&&!r.pub){msg.textContent="Dopisz opis wydarzenia otwartego albo odznacz tę opcję.";return}
- const code=genCode();
  const btn=$("send");btn.disabled=true;msg.textContent="Wysyłanie…";
  try{
   const x=await fetch(SUPABASE_URL+"/rest/v1/reservations",{method:"POST",headers:{...HDR,"Prefer":"return=minimal"},
-   body:JSON.stringify({event_date:r.date,title:r.title,email:r.mail,phone:r.phone,note:r.details||null,is_public:r.open,public_desc:r.open?r.pub:null,status:"pending",code})});
+   body:JSON.stringify({event_date:r.date,title:r.title,email:r.mail,phone:r.phone,note:r.details||null,is_public:r.open,public_desc:r.open?r.pub:null,status:"pending"})});
   if(!x.ok){const t=await x.text();const code=(t.match(/BAD_EMAIL|BAD_PHONE|DATE_TAKEN|DUPLICATE|LIMIT_EMAIL|LIMIT_GLOBAL|LIMIT_PENDING/)||[])[0];
    if(code){msg.textContent=GUARD_MSG[code];if(code==="DATE_TAKEN"){sel=null;showSel();await loadBusy()}return}
    throw new Error("HTTP "+x.status+" "+t.slice(0,160))}
   try{await sendMail({subject:"Rezerwacja – "+fmtD(r.date)+" – "+r.title,date:fmtD(r.date),title:r.title,email:r.mail,reply_to:r.mail,phone:r.phone,
-   details:(r.details||"-")+"\n\nKod rezerwacji: "+code+" · status: "+statusUrl(code),event_type:r.open?"otwarte":"prywatne",public_desc:r.open?r.pub:"-"})}
+   details:r.details||"-",event_type:r.open?"otwarte":"prywatne",public_desc:r.open?r.pub:"-"})}
   catch(e){console.error("powiadomienie e-mail:",e)}   // prośba i tak jest zapisana w panelu administratora
-  // potwierdzenie dla gościa z kodem i linkiem do statusu
-  if(EMAILJS.guest)try{await sendMail({to_email:r.mail,date:fmtD(r.date),title:r.title,code,status_url:statusUrl(code)},EMAILJS.guest)}
-  catch(e){console.error("mail do gościa:",e)}
-  sentMsg(msg,r.date,code);
+  msg.textContent="Dziękujemy! Prośba o rezerwację na "+fmtD(r.date)+" została wysłana. Termin zostanie potwierdzony przez właściciela – odpowiemy na podany e-mail zwykle w ciągu 24 h.";
   sel=null;showSel();["f-title","f-mail","f-phone","f-note","f-pub"].forEach(i=>$(i).value="");$("f-open").checked=false;$("f-pub-wrap").hidden=true;
   await loadAdmin();draw();list();
  }catch(e){console.error("reservation:",e);msg.textContent="Nie udało się wysłać prośby ("+e.message+"). Spróbuj ponownie za chwilę albo zadzwoń: 607 415 412."}

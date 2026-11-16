@@ -468,21 +468,3 @@ nav a:not(.on):hover{background:var(--navy);color:#fff}
 .cal button.busy:not(:disabled){cursor:pointer;outline:2px dashed var(--kult);outline-offset:-4px}
 .cal button.busy.sel{outline:3px solid var(--kult);outline-offset:-3px}
 .ab-f select{font:inherit;font-size:14px;padding:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:0}
-/* Status rezerwacji */
-.stbox{margin:0;padding:18px 20px;border-bottom:1.5px solid var(--line);border-left:8px solid var(--acc);background:var(--card)}
-.stbox.confirmed{border-left-color:#1f9d55}
-.stbox.rejected{border-left-color:#c0392b}
-.stbox.none{border-left-color:var(--line)}
-.stbox .st-k{margin:0 0 4px;font:800 11px/1.2 Montserrat,Arial,sans-serif;text-transform:uppercase;letter-spacing:.08em;opacity:.75}
-.stbox h2{margin:0 0 6px;font-size:clamp(20px,3vw,28px)}
-.stbox .st-d{margin:0 0 6px;font-weight:700}
-.stbox p{margin:0 0 10px;max-width:640px}
-.codebox{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:10px;padding:12px;border:1.5px dashed var(--line);background:var(--card)}
-.codebox b{font:800 18px/1 Unbounded,monospace;letter-spacing:.08em}
-.codebox a{font-weight:700}
-.codebox small{flex-basis:100%;opacity:.8}
-.stchk{margin-top:14px;font-size:13px}
-.stchk summary{cursor:pointer;font-weight:700;text-decoration:underline}
-.stchk-f{display:flex;gap:8px;margin-top:8px}
-.stchk-f input{flex:1;margin:0;text-transform:uppercase}
-#list .row.rej{opacity:.6}
