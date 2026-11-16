@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Montserrat:wght@400;500;600&display=swap">
 <script>try{var t=localStorage.getItem("pdp_theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
-<link rel="stylesheet" href="css/style.css?v=48"><link rel="canonical" href="https://przystanekduzypokoj.pl/">
+<link rel="stylesheet" href="css/style.css?v=49"><link rel="canonical" href="https://przystanekduzypokoj.pl/">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"EventVenue","name":"Przystanek Duży Pokój",
 "description":"Społeczna przestrzeń spotkań w przystanku Kaponiera w Poznaniu: sport, kultura, taniec, wydarzenia i wynajem sali na imprezy.",
@@ -112,6 +112,7 @@
 
 <section class="view" id="v-rezerwacje">
  <div class="band"><h1 class="big">Rezerwacje</h1></div>
+ <div id="stbox" class="stbox" hidden aria-live="polite"></div>
  <div class="grid2">
   <div class="band">
    <div class="cal-h"><button id="prev">←</button><h3 id="mon" style="font-size:16px"></h3><button id="next">→</button></div>
@@ -139,6 +140,7 @@
    <label class="chk"><input type="checkbox" id="f-open"> Wydarzenie otwarte (opis pojawi się na stronie obok daty)</label>
    <div id="f-pub-wrap" hidden><label for="f-pub">Opis wydarzenia widoczny na stronie</label><textarea id="f-pub" rows="2" maxlength="200" placeholder="np. Techno night – wstęp wolny"></textarea></div>
    <p><button class="btn" id="send">Zarezerwuj ↗</button></p><p class="resp">Odpowiadamy zwykle w ciągu 24 h.</p><div class="msg" id="msg"></div>
+   <details class="stchk"><summary>Masz już kod rezerwacji? Sprawdź status</summary><div class="stchk-f"><input id="st-code" maxlength="16" placeholder="np. K7M2QX9PAB" autocomplete="off" autocapitalize="characters" aria-label="Kod rezerwacji"><button class="btn" id="st-go" type="button">Sprawdź ↗</button></div></details>
    <p class="rodo">Administratorem danych podanych w formularzu (tytuł, e-mail, telefon, szczegóły) jest Paweł Rosół, prowadzący Przystanek Duży Pokój. Dane przetwarzamy wyłącznie w celu obsługi prośby o rezerwację i kontaktu w jej sprawie (art. 6 ust. 1 lit. b RODO). Więcej, w tym o Twoich prawach: <a href="#prywatnosc">Polityka prywatności</a>.</p></div>
   </div>
  </div>
@@ -250,4 +252,4 @@
   </div>
  </div>
 </div>
-<script src="js/main.js?v=48"></script></body></html>
+<script src="js/main.js?v=49"></script></body></html>
