@@ -468,3 +468,4 @@ nav a:not(.on):hover{background:var(--navy);color:#fff}
 .cal button.busy:not(:disabled){cursor:pointer;outline:2px dashed var(--kult);outline-offset:-4px}
 .cal button.busy.sel{outline:3px solid var(--kult);outline-offset:-3px}
 .ab-f select{font:inherit;font-size:14px;padding:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:0}
+.vmore{margin:4px 0 0;grid-column:1/-1}

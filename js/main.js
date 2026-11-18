@@ -374,7 +374,7 @@ loadEvents();
 // ===== Wydarzenia w sali (sekcja "Wydarzenia" na stronie głównej; tabela venue_events) =====
 // Administrator dodaje je w panelu pod listą; daty wydarzeń są też zajęte w kalendarzu rezerwacji.
 const FB_PAGE="https://www.facebook.com/profile.php?id=61590560972544";
-let VROWS=[],vEditId=null;
+let VROWS=[],vEditId=null,vAll=false;
 const VF={date:"vdate",title:"vtitle",time_text:"vtime",description:"vdesc",fb_url:"vfb"};
 function drawV(){
  const box=$("vlist");box.innerHTML="";
@@ -383,9 +383,12 @@ function drawV(){
  const r4rows=Object.keys(EV).map(k=>({...(EVD[k]||{}),event_date:k,title:EV[k],_r4:true}));
  const rows=[...VROWS,...r4rows].filter(r=>(isAdm&&!r._r4)||String(r.event_date).slice(0,10)>=todayKey)
   .sort((a,b)=>String(a.event_date)<String(b.event_date)?-1:1);
+ // gość widzi 3 najbliższe wydarzenia; reszta po kliknięciu "Pokaż wszystkie"
+ const pub=rows,MAXV=3;
+ const shown=isAdm||vAll?pub:pub.slice(0,MAXV),more=pub.length-shown.length;
  if(!rows.length){const p=document.createElement("p");p.className="vempty";p.append("Brak zaplanowanych wydarzeń. Zajrzyj na ");
   const a=document.createElement("a");a.href=FB_PAGE;a.target="_blank";a.rel="noopener";a.textContent="nasz Facebook ↗";p.append(a);box.append(p)}
- rows.forEach(r=>{const k=String(r.event_date).slice(0,10);
+ shown.forEach(r=>{const k=String(r.event_date).slice(0,10);
   const c=document.createElement("article");c.className="vcard"+(k<todayKey?" past":"")+(r._r4?" r4":"");
   const ph=document.createElement("div");ph.className="vposter";
   if(r.poster_url){const im=document.createElement("img");im.src=r.poster_url;im.alt="Plakat: "+r.title;im.loading="lazy";ph.append(im)}
@@ -408,6 +411,9 @@ function drawV(){
    if(r.poster_url){const z=document.createElement("button");z.className="btn";z.textContent="Usuń plakat";z.onclick=()=>delVenuePoster(r);act.append(z)}
    body.append(act)}
   c.append(ph,body);box.append(c)});
+ if(!isAdm&&(more>0||vAll&&pub.length>MAXV)){const p=document.createElement("p");p.className="vmore";
+  const b=document.createElement("button");b.type="button";b.className="btn";b.textContent=vAll?"Pokaż mniej":"Pokaż wszystkie ("+pub.length+") ↓";
+  b.onclick=()=>{vAll=!vAll;drawV();if(!vAll)$("start-wydarzenia").scrollIntoView({behavior:"smooth",block:"start"})};p.append(b);box.append(p)}
  $("vadm").hidden=!isAdm;updAdminBar()}
 async function loadVenue(){
  try{const x=await fetch(SUPABASE_URL+"/rest/v1/venue_events?select=*&order=event_date.asc",{headers:HDR});
