@@ -469,3 +469,17 @@ nav a:not(.on):hover{background:var(--navy);color:#fff}
 .cal button.busy.sel{outline:3px solid var(--kult);outline-offset:-3px}
 .ab-f select{font:inherit;font-size:14px;padding:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:0}
 .vmore{margin:4px 0 0;grid-column:1/-1}
+/* Okno wydarzenia: stała wysokość, plakat wypełnia swoją kolumnę (rozmyte tło z tego samego plakatu), długi opis przewija się */
+@media(min-width:761px){
+ .evm-box{height:min(720px,calc(100vh - 48px));grid-template-rows:minmax(0,1fr)}
+ .evm.noposter .evm-box{height:auto;max-height:calc(100vh - 48px)}
+ .evm-info{max-height:100%;overscroll-behavior:contain;scrollbar-width:thin}
+ .evm.noposter .evm-info{max-height:calc(100vh - 50px)}
+}
+.evm-poster{position:relative;overflow:hidden;min-height:0}
+.evm-poster::before{content:"";position:absolute;inset:-30px;background:var(--pimg,none) center/cover no-repeat;filter:blur(26px) brightness(.55) saturate(1.1);transform:scale(1.05)}
+.evm-poster>img{position:relative;z-index:1;width:100%;height:100%;max-height:none;object-fit:contain}
+.evm-poster>.evm-ph{position:relative;z-index:1}
+.evm-desc a{color:inherit;text-decoration:underline;overflow-wrap:anywhere}
+.evm-desc{overflow-wrap:anywhere}
+@media(max-width:760px){.evm-box{grid-auto-rows:max-content}.evm-poster>img{height:auto;max-height:65vh}}

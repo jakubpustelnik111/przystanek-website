@@ -56,17 +56,21 @@ function eventByDate(k){
  const v=(typeof VROWS!=="undefined"?VROWS:[]).find(x=>String(x.event_date).slice(0,10)===k);
  return v?{...v,event_date:k,_src:"sala"}:null}
 function eventUrl(k){return location.origin+location.pathname+"#wydarzenie/"+k}
+// opis wydarzenia: adresy https:// stają się klikalnymi linkami (tekst wstawiany bezpiecznie, bez HTML)
+function linkify(el,txt){el.textContent="";String(txt).split(/(https?:\/\/[^\s]+)/g).forEach((s,i)=>{
+ if(i%2){const a=document.createElement("a");a.href=s;a.target="_blank";a.rel="noopener";a.textContent=s.replace(/^https?:\/\/(www\.)?/,"");el.append(a)}else if(s)el.append(s)})}
 function openEvent(k){const r=eventByDate(k);if(!r)return;evmCur=r;
  const dt=new Date(+k.slice(0,4),+k.slice(5,7)-1,+k.slice(8,10));
  document.getElementById("evm-date").textContent=(r._src==="r4"?"r4b4n · ":"")+DNE[dt.getDay()]+", "+fmt(k);
  document.getElementById("evm-title").textContent=r.title;
  evm.classList.toggle("sala",r._src==="sala");evm.classList.toggle("noposter",r._src==="sala"&&!r.poster_url);
  const img=document.getElementById("evm-img"),ph=document.getElementById("evm-ph");
- if(r.poster_url){img.src=r.poster_url;img.alt="Plakat: "+r.title;img.hidden=false;ph.hidden=true}else{img.removeAttribute("src");img.hidden=true;ph.hidden=false}
+ const pw=img.parentElement;
+ if(r.poster_url){img.src=r.poster_url;img.alt="Plakat: "+r.title;img.hidden=false;ph.hidden=true;pw.style.setProperty("--pimg","url(\""+r.poster_url.replace(/"/g,"%22")+"\")")}else{img.removeAttribute("src");img.hidden=true;ph.hidden=false;pw.style.removeProperty("--pimg")}
  const dl=document.getElementById("evm-facts");dl.innerHTML="";
  [["Otwarcie bramek",r.doors],["Godziny",r.time_text],["Line-up",r.lineup],["Tax",r.entry]].forEach(([a,b])=>{if(!b)return;
   const t=document.createElement("dt");t.textContent=a;const d=document.createElement("dd");d.textContent=b;dl.append(t,d)});
- const ds=document.getElementById("evm-desc");ds.textContent=r.description||"";ds.hidden=!r.description;
+ const ds=document.getElementById("evm-desc");linkify(ds,r.description||"");ds.hidden=!r.description;document.querySelector("#evm .evm-info").scrollTop=0;
  if(!dl.children.length&&!r.description){ds.textContent="Szczegóły wkrótce.";ds.hidden=false}
  const post=document.getElementById("evm-post"),ig=document.getElementById("evm-ig");
  const link=r._src==="r4"?r.post_url:r.fb_url;
