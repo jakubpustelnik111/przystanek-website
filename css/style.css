@@ -483,3 +483,11 @@ nav a:not(.on):hover{background:var(--navy);color:#fff}
 .evm-desc a{color:inherit;text-decoration:underline;overflow-wrap:anywhere}
 .evm-desc{overflow-wrap:anywhere}
 @media(max-width:760px){.evm-box{grid-auto-rows:max-content}.evm-poster>img{height:auto;max-height:65vh}}
+/* Karty wydarzeń: tekst nigdy nie wychodzi poza kartę */
+.vcard{grid-template-columns:120px minmax(0,1fr);overflow:hidden}
+@media(max-width:600px){.vcard{grid-template-columns:96px minmax(0,1fr)}}
+.vbody{min-width:0;max-width:100%}
+.vbody>*{max-width:100%}
+.vbody h3{overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.vdate,.vdesc{overflow-wrap:anywhere}
+.vposter{min-width:0}
